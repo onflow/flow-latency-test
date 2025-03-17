@@ -9,6 +9,8 @@ import {
   http,
 } from "@wagmi/core";
 
+import { logTimeWrapper } from "./utils/index.mjs";
+
 // Use dotenv to load environment variables from a .env file
 dotenv.config();
 
@@ -24,15 +26,6 @@ const config = createConfig({
     [chainNetwork.id]: http(),
   },
 });
-
-function logTimeWrapper(fn) {
-  return async (...args) => {
-    console.time(`Function Call [${fn.name}]`);
-    const result = await fn(...args);
-    console.timeEnd(`Function Call [${fn.name}]`);
-    return result;
-  };
-}
 
 async function sentTestTransaction() {
   // Create a private key from the environment variable
