@@ -17,13 +17,14 @@ dotenv.config();
 // Load EVM Private Key from environment variable
 const privateKey = process.env.PRIVATE_KEY;
 const networkName = process.env.NETWORK || "testnet";
+const rpcEndpointURL = process.env.EVM_RPC_ENDPOINT_URL || undefined;
 const chainNetwork = networkName === "mainnet" ? flowMainnet : flowTestnet;
 
 const config = createConfig({
   chains: [chainNetwork],
   connectors: [],
   transports: {
-    [chainNetwork.id]: http(),
+    [chainNetwork.id]: http(rpcEndpointURL),
   },
 });
 
