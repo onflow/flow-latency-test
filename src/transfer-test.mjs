@@ -2,7 +2,12 @@ import dotenv from "dotenv";
 import { createWalletClient, parseEther } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { flowMainnet, flowTestnet } from "viem/chains";
-import { waitForTransactionReceipt, createConfig, http } from "@wagmi/core";
+import {
+  waitForTransactionReceipt,
+  getBalance,
+  createConfig,
+  http,
+} from "@wagmi/core";
 
 // Use dotenv to load environment variables from a .env file
 dotenv.config();
@@ -47,17 +52,27 @@ async function sentTestTransaction() {
 
   let hash;
 
+  // Send to self if no recipient address is provided
+  const recipient = process.env.RECIPIENT ?? account.address;
+
   // Send a transaction of transfer 0 FLOW to self
   const callSentTransaction = logTimeWrapper(async function sendTransaction() {
     hash = await client.sendTransaction({
-      to: account.address, // Send to self
-      value: parseEther("0"), // 0 FLOW
+      to: recipient,
+      value: parseEther("0.1"), // 0.1 FLOW
       data: "0x", // Empty data
     });
   });
   await callSentTransaction();
 
   console.log(`--- Transaction sent with Hash: ${hash}`);
+
+  const waitForGetBalance = logTimeWrapper(async function getAccountBalance() {
+    // get the account balance
+    const balance = await getBalance(config, { address: account.address });
+    console.log("--- Account Balance:", balance.formatted);
+  });
+  waitForGetBalance();
 
   // Wait for the transaction receipt
   let receipt;
@@ -70,7 +85,10 @@ async function sentTestTransaction() {
     }
   );
   await callWaitForTransactionReceipt();
-  return receipt;
+
+  console.log("---- Transaction Receipt: status = ", receipt.status);
+
+  await waitForGetBalance();
 }
 
 // Main wrapper function
@@ -78,7 +96,7 @@ const wrappedSendTest = logTimeWrapper(sentTestTransaction);
 
 // Run the main function
 try {
-  console.log("---- Transaction Receipt: ", await wrappedSendTest());
+  await wrappedSendTest();
 } catch (error) {
   console.error("Error sending transaction:", error);
 }
