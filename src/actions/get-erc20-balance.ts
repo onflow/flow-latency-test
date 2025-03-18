@@ -13,7 +13,7 @@ export class GeERC20BalanceAction extends BaseAction<EVMBlockchainContext> {
 	}
 
 	get name() {
-		return `GetERC20Balance[await(${this._field})]`;
+		return `GetERC20Balance[await(${this._field})${this.awaitChange ? "->Change" : ""}]`;
 	}
 	get awaitField() {
 		return this._field;

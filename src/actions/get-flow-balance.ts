@@ -13,7 +13,7 @@ export class GetBalanceAction extends BaseAction<EVMBlockchainContext> {
 	}
 
 	get name() {
-		return `GetBalance[await(${this._field})]`;
+        return `GetBalance[await(${this._field})${this.awaitChange ? "->Change" : ""}]`;
 	}
 	get awaitField() {
 		return this._field;
