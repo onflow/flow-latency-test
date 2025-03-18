@@ -1,4 +1,7 @@
-import type { Context } from "./types";
+import { privateKeyToAccount } from "viem/accounts";
+import { getWalletClient } from "@wagmi/core";
+import { chainNetwork, config, networkName } from "./config";
+import type { Context, EVMBlockchainContext } from "./types";
 
 export * from "./config";
 
@@ -93,4 +96,14 @@ export class Batch<T extends Context> {
 			);
 		}
 	}
+}
+
+export async function buildEVMBlockchainContext(privKey: string) {
+	// Create a private key from the environment variable
+	const key = privKey.startsWith("0x") ? privKey.substring(2) : privKey;
+
+	const account = privateKeyToAccount(`0x${key}`);
+	console.log(`[Address: ${account.address} @${networkName}]`);
+
+	return { account, latencies: {} } as EVMBlockchainContext;
 }
