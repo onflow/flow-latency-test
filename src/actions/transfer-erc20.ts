@@ -3,7 +3,7 @@ import { sendTransaction } from "@wagmi/core";
 import { BaseAction, config } from "../utils";
 import type { EVMBlockchainContext } from "../utils/types";
 
-export class TransferAction extends BaseAction<EVMBlockchainContext> {
+export class TransferERC20Action extends BaseAction<EVMBlockchainContext> {
 	get name() {
 		return "TransferERC20Action";
 	}
@@ -19,7 +19,7 @@ export class TransferAction extends BaseAction<EVMBlockchainContext> {
 		const no0xRecipient = recipient.startsWith("0x")
 			? recipient.substring(2)
 			: recipient;
-		const amount = 0.1 * 1e18;
+		const amount = 0.001 * 1e18;
 		const hash = await sendTransaction(config, {
 			account: account,
 			to: "0x5e65b6b04fba51d95409712978cb91e99d93ae73", // The USDF contract address
