@@ -5,7 +5,7 @@ import type { EVMBlockchainContext } from "../utils/types";
 
 export class TransferERC20Action extends BaseAction<EVMBlockchainContext> {
 	get name() {
-		return "TransferERC20Action";
+		return "TransferAction";
 	}
 	get awaitField() {
 		return "account";
