@@ -5,7 +5,7 @@ import { sendTransaction } from "@wagmi/core";
 
 export class TransferAction extends BaseAction<EVMBlockchainContext> {
 	get name() {
-		return "TransferAction";
+		return "0_TransferAction";
 	}
 	get awaitField() {
 		return "account";
