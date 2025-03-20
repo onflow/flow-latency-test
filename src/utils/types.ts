@@ -3,7 +3,6 @@ import type {
 	WaitForTransactionReceiptReturnType,
 } from "viem";
 import type { ArgsFn } from "@onflow/fcl-core/types/exec/args";
-import type { authz as AuthObject } from "@onflow/fcl";
 import type { Account } from "@onflow/typedefs";
 
 export interface Context extends Record<string, unknown> {
@@ -16,7 +15,7 @@ export type EVMBlockchainContext = {
 	receipt?: WaitForTransactionReceiptReturnType;
 } & Context;
 
-export type Authz = (account: Account) => Promise<typeof AuthObject>;
+export type Authz = (account: Account) => Promise<object> | object;
 
 export interface IFlowScriptExecutor {
 	/**
@@ -31,20 +30,13 @@ export interface IFlowScriptExecutor {
  * Signer interface
  */
 export interface IFlowSigner {
-	/**
-	 * Send a transaction
-	 */
-	sendTransaction(
-		code: string,
-		args: ArgsFn,
-		authz?: typeof AuthObject,
-	): Promise<string>;
+		/**
+		 * Send a transaction
+		 */
+		sendTransaction(code: string, args: ArgsFn, authz?: Authz): Promise<string>;
 
-	/**
-	 * Build authorization
-	 */
-	buildAuthorization(
-		accountIndex?: number,
-		privateKey?: string,
-	): (acct: Account) => Promise<Authz> | Authz;
-}
+		/**
+		 * Build authorization
+		 */
+		buildAuthorization(accountIndex?: number, privateKey?: string): Authz;
+	}
