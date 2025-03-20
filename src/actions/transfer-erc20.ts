@@ -12,7 +12,7 @@ export class TransferERC20Action extends BaseAction<EVMBlockchainContext> {
 	}
 
 	async fn(ctx: EVMBlockchainContext) {
-		const { client, account } = ctx;
+        const { account } = ctx;
 
 		// Send to self if no recipient address is provided
 		const recipient = process.env.RECIPIENT ?? account.address;
