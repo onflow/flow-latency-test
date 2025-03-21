@@ -20,7 +20,7 @@ Please copy the `.env.example` file to `.env` and fill in the required environme
 cp .env.example .env
 ```
 
-You need to set the following environment variables:
+You need to set the following environment variables in the `.env` file:
 
 ```bash
 # The Flow network to connect to
