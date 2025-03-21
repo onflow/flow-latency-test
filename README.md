@@ -28,13 +28,16 @@ NETWORK=testnet
 
 # The private key of EVM address
 PRIVATE_KEY=
-
 # The address to accept funds from the sender address, can be none that means the sender address is the recipient
 RECIPIENT=
 
 # Your Alchemy EVM endpoint URL
 MAINNET_ALCHEMY_URL=
 TESTNET_ALCHEMY_URL=
+
+# Flow address and private key
+FLOW_ADDRESS=
+FLOW_PRIVATE_KEY=
 ```
 
 ## Usage
