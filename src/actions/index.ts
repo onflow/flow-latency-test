@@ -3,3 +3,7 @@ export * from "./transfer";
 export * from "./wait-for-receipt";
 export * from "./get-erc20-balance";
 export * from "./transfer-erc20";
+export * from './get-flow-balance-cdc';
+export * from './transfer-flow-cdc';
+export * from './wait-for-sealed';
+export * from './wait-for-executed';

@@ -93,14 +93,6 @@ export class FlowConnector implements IFlowScriptExecutor {
     }
 
     /**
-     * Get transaction status
-     */
-    async getTransactionStatus(transactionId: string): Promise<TransactionStatus> {
-        await this.ensureInited();
-        return await fcl.tx(transactionId).onceExecuted();
-    }
-
-    /**
      * Get chain id
      */
     async getChainId() {
@@ -109,11 +101,21 @@ export class FlowConnector implements IFlowScriptExecutor {
     }
 
     /**
-     * Send transaction with single authorization
+     * Get transaction status
      */
+    async getTransactionStatus(transactionId: string): Promise<TransactionStatus> {
+        await this.ensureInited();
+        return await fcl.tx(transactionId).onceExecuted();
+    }
+
     async onceTransactionSealed(transactionId: string): Promise<TransactionStatus> {
         await this.ensureInited();
         return fcl.tx(transactionId).onceSealed();
+    }
+
+    async onceTransactionExecuted(transactionId: string): Promise<TransactionStatus> {
+        await this.ensureInited();
+        return fcl.tx(transactionId).onceExecuted();
     }
 
     /**

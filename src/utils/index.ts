@@ -1,7 +1,8 @@
 import { privateKeyToAccount } from "viem/accounts";
-import { getWalletClient } from "@wagmi/core";
-import { chainNetwork, config, networkName } from "./config";
-import type { Context, EVMBlockchainContext } from "./types";
+import { networkName } from "./config";
+import type { CadenceBlockchainContext, Context, EVMBlockchainContext } from "./types";
+import { FlowConnector, FlowWallet, type NetworkType } from "./flow";
+import flowJSON from '../../flow.json' assert { type: "json" };
 
 export * from "./config";
 
@@ -106,4 +107,11 @@ export async function buildEVMBlockchainContext(privKey: string) {
   console.log(`[Address: ${account.address} @${networkName}]`);
 
   return { account, latencies: {} } as EVMBlockchainContext;
+}
+
+export async function buildCadenceBlockchainContext() {
+  const connecter = new FlowConnector(flowJSON, networkName as NetworkType)
+  const wallet = new FlowWallet(connecter)
+
+  return { wallet, latencies: {} } as CadenceBlockchainContext;
 }

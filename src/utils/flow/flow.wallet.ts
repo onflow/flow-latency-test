@@ -9,13 +9,13 @@ import type { IFlowScriptExecutor, IFlowSigner, Authz } from "../types";
  * Flow wallet Provider
  */
 export class FlowWallet implements IFlowSigner, IFlowScriptExecutor {
+    public readonly address: string;
     private readonly privateKeyHex?: string;
-    private readonly address: string;
     // Runtime data
     private account: Account | null = null;
     public maxKeyIndex = 0;
 
-    constructor(private readonly connector: FlowConnector) {
+    constructor(public readonly connector: FlowConnector) {
         const signerAddr = process.env.FLOW_ADDRESS;
         if (!signerAddr) {
             throw new Error("No signer info");

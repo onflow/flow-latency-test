@@ -47,3 +47,10 @@ bun start
 ```
 
 The output will be generated at `outputs` directory.
+
+## Output columns
+
+### What is the difference between `waiting` and `completed`?
+
+- `waiting`: The time between the batch starts and the action being started to execute and await.
+- `completed`: The time between the batch starts and the action being completed.

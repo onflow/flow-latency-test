@@ -3,7 +3,8 @@ import type {
   WaitForTransactionReceiptReturnType,
 } from "viem";
 import type { ArgsFn } from "@onflow/fcl-core/types/exec/args";
-import type { Account } from "@onflow/typedefs";
+import type { Account, TransactionStatus } from "@onflow/typedefs";
+import type { FlowWallet } from "./flow";
 
 export interface Context extends Record<string, unknown> {
   latencies: Record<string, Record<"waiting" | "completed", number>>;
@@ -13,6 +14,12 @@ export type EVMBlockchainContext = {
   account: PrivateKeyAccount;
   hash?: string;
   receipt?: WaitForTransactionReceiptReturnType;
+} & Context;
+
+export type CadenceBlockchainContext = {
+  wallet: FlowWallet;
+  hash?: string;
+  receipt?: TransactionStatus;
 } & Context;
 
 export type Authz = (account: Account) => Promise<object> | object;
