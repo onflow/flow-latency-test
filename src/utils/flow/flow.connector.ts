@@ -15,6 +15,7 @@ export class FlowConnector implements IFlowScriptExecutor {
     constructor(
         private readonly flowJSON: object,
         public readonly network: NetworkType = "mainnet",
+        public readonly useSoftFinality: boolean = false,
         private readonly defaultRpcEndpoint: string | undefined = undefined,
     ) { }
 
@@ -43,6 +44,10 @@ export class FlowConnector implements IFlowScriptExecutor {
         const cfg = fcl.config();
         // Required
         cfg.put("flow.network", this.network);
+        // Set soft finality
+        if (this.useSoftFinality) {
+            cfg.put("fcl.experimental.softFinality", true)
+        }
         // Set the maximum of gas limit
         cfg.put("fcl.limit", 9999);
         // Set the RPC endpoint
