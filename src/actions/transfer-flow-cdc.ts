@@ -20,7 +20,7 @@ export class CadenceTransferAction extends BaseAction<CadenceBlockchainContext> 
 
         const hash = await wallet.sendTransaction(cadenceCode, (arg, t) => [
             arg(no0xRecipient, t.String),
-            arg("0.1", t.UFix64),
+            arg("0.0001", t.UFix64),
         ])
         ctx.hash = hash;
         console.log(`--- Transaction sent with Hash: ${hash}`);

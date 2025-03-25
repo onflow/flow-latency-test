@@ -22,7 +22,7 @@ export class TransferAction extends BaseAction<EVMBlockchainContext> {
 		const hash = await sendTransaction(config, {
 			account: account,
 			to: `0x${no0xRecipient}`,
-			value: parseEther("0.1"),
+            value: parseEther("0.0001"),
 			data: "0x",
 		});
 		ctx.hash = hash;

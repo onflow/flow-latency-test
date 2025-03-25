@@ -19,7 +19,7 @@ export class TransferERC20Action extends BaseAction<EVMBlockchainContext> {
 		const no0xRecipient = recipient.startsWith("0x")
 			? recipient.substring(2)
 			: recipient;
-		const amount = 0.001 * 1e18;
+        const amount = 0.0000001 * 1e18;
 		const hash = await sendTransaction(config, {
 			account: account,
 			to: "0x5e65b6b04fba51d95409712978cb91e99d93ae73", // The USDF contract address
