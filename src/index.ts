@@ -205,7 +205,7 @@ async function main() {
     existingResults.last_updated = nowStr;
 
     // Write the updated results back to the JSON file
-    fs.writeFileSync(existingResultsPath, JSON.stringify(existingResults, null, 2));
+    fs.writeFileSync(existingResultsPath, JSON.stringify(existingResults, null, 4));
     console.log(`Results have been merged into ${existingResultsPath}`);
 }
 
