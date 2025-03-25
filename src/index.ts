@@ -159,18 +159,54 @@ async function main() {
     }
 
     // Create outputs directory if it doesn't exist
-    const outputsDir = path.join(process.cwd(), "outputs/csvs");
-    if (!fs.existsSync(outputsDir)) {
-        fs.mkdirSync(outputsDir, { recursive: true });
+    const outputsDir = path.join(process.cwd(), "outputs");
+    const csvOutputsDir = path.join(outputsDir, "csv");
+    if (!fs.existsSync(csvOutputsDir)) {
+        fs.mkdirSync(csvOutputsDir, { recursive: true });
     }
 
     // Generate timestamp for unique filename
-    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-    const outputPath = path.join(outputsDir, `latency_results_${timestamp}.csv`);
+    const nowStr = new Date().toISOString();
+    const timestamp = nowStr.replace(/[:.]/g, "-");
+    const outputPath = path.join(csvOutputsDir, `latency_results_${timestamp}.csv`);
 
     // Write to file
     fs.writeFileSync(outputPath, csvRows.join("\n"));
     console.log(`Results have been saved to ${outputPath}`);
+
+    // merge the data into latency_results.json
+    // Load existing latency results from JSON file
+    const existingResultsPath = path.join(outputsDir, "latency_results.json");
+    let existingResults = require(existingResultsPath);
+    if (!existingResults) {
+        existingResults = { last_updated: nowStr, results: [] };
+    }
+
+    // Convert parsedResults to the format expected in latency_results.json
+    const formattedResults = parsedResults.map(result => ({
+        providerKey: result.providerKey,
+        runner: result.runner,
+        metrics: result.latencies.reduce((acc, latency) => {
+            acc[latency.name] = {
+                waiting: latency.waiting,
+                completed: latency.completed,
+            };
+            return acc;
+        }, {} as Record<string, { waiting: number, completed: number }>),
+    }));
+
+    // Add the formatted results to the existing results
+    existingResults.results.push({
+        timestamp: nowStr,
+        tests: formattedResults,
+    });
+
+    // Update the last_updated timestamp
+    existingResults.last_updated = nowStr;
+
+    // Write the updated results back to the JSON file
+    fs.writeFileSync(existingResultsPath, JSON.stringify(existingResults, null, 2));
+    console.log(`Results have been merged into ${existingResultsPath}`);
 }
 
 main().catch(console.error);
