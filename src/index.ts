@@ -20,6 +20,15 @@ interface ParsedLatency {
     completed: number;
 }
 
+interface LatencyResult {
+    timestamp: string;
+    tests: Array<{
+        runner: string;
+        providerKey: string;
+        metrics: Record<string, { waiting: number; completed: number }>;
+    }>;
+}
+
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function runScript(
@@ -160,7 +169,7 @@ async function main() {
 
     // Create outputs directory if it doesn't exist
     const outputsDir = path.join(process.cwd(), "outputs");
-    const csvOutputsDir = path.join(outputsDir, "csv");
+    const csvOutputsDir = path.join(outputsDir, "csvs");
     if (!fs.existsSync(csvOutputsDir)) {
         fs.mkdirSync(csvOutputsDir, { recursive: true });
     }
@@ -207,6 +216,47 @@ async function main() {
     // Write the updated results back to the JSON file
     fs.writeFileSync(existingResultsPath, JSON.stringify(existingResults, null, 4));
     console.log(`Results have been merged into ${existingResultsPath}`);
+
+    // Export flattened output json file
+    const flattenedOutputPath = path.join(outputsDir, 'flattened_output.json');
+
+    // Load and process the latency results
+    const flattenedResults = existingResults.results.flatMap((result: LatencyResult) => {
+        // Clean ISO timestamp (remove microseconds, force 'Z')
+        const dt = new Date(result.timestamp);
+        const timestamp = `${dt.toISOString().split('.')[0]}Z`;
+
+        return result.tests.flatMap((test) => {
+            const runner = test.runner;
+            const provider = test.providerKey;
+            const metrics = test.metrics;
+
+            return Object.entries(metrics).flatMap(([metricName, values]) => [
+                {
+                    timestamp,
+                    runner,
+                    provider,
+                    metric: metricName,
+                    label: 'waiting',
+                    value: values.waiting,
+                    series_name: `${runner} | ${provider} | ${metricName} | waiting`
+                },
+                {
+                    timestamp,
+                    runner,
+                    provider,
+                    metric: metricName,
+                    label: 'completed',
+                    value: values.completed,
+                    series_name: `${runner} | ${provider} | ${metricName} | completed`
+                }
+            ]);
+        });
+    });
+
+    // Write flattened results to file
+    fs.writeFileSync(flattenedOutputPath, JSON.stringify(flattenedResults, null, 4));
+    console.log(`Flattened results have been saved to ${flattenedOutputPath}`);
 }
 
 main().catch(console.error);
