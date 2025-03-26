@@ -3,8 +3,8 @@ import path from "node:path";
 import { spawn } from "node:child_process";
 
 const runners = [
-    { providerKey: undefined, tasks: ["transfer-erc20-test", "transfer-cadence-soft-finality-test", "transfer-test", "transfer-cadence-test"] },
-    { providerKey: "ALCHEMY_URL", tasks: ["transfer-erc20-test", "transfer-test"] },
+    { providerKey: undefined, tasks: ["transfer-test", "transfer-erc20-test", "transfer-cadence-soft-finality-test", "transfer-cadence-test"] },
+    { providerKey: "ALCHEMY_URL", tasks: ["transfer-test", "transfer-erc20-test"] },
 ]
 
 interface LatencyData {
