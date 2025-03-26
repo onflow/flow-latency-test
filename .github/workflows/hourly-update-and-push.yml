@@ -20,7 +20,7 @@ jobs:
                 ref: main
 
             - name: Install bun
-              run: curl -sL https://bun.sh | sudo bash
+              run: curl -fsSL https://bun.sh/install | bash
 
             - name: Install Dependencies
               run: bun install
