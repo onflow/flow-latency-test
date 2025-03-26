@@ -205,6 +205,11 @@ async function main() {
     }));
 
     // Add the formatted results to the existing results
+    if (formattedResults.length === 0) {
+        console.log("No results to merge");
+        return;
+    }
+
     existingResults.results.push({
         timestamp: nowStr,
         tests: formattedResults,

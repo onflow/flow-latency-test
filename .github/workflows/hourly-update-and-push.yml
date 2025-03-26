@@ -14,6 +14,15 @@ jobs:
         permissions:
             contents: write
 
+        env:
+            NETWORK: ${{ vars.NETWORK }}
+            PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+            RECIPIENT: ${{ vars.RECIPIENT }}
+            FLOW_ADDRESS: ${{ vars.FLOW_ADDRESS }}
+            FLOW_PRIVATE_KEY: ${{ secrets.FLOW_PRIVATE_KEY }}
+            TESTNET_ALCHEMY_URL: ${{ secrets.TESTNET_ALCHEMY_URL }}
+            MAINNET_ALCHEMY_URL: ${{ secrets.MAINNET_ALCHEMY_URL }}
+
         steps:
             - uses: actions/checkout@v4
               with:
