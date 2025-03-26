@@ -1,0 +1,37 @@
+name: Hourly Update and Push
+
+on:
+    # Execute this workflow every hour
+    schedule:
+        - cron: "0 * * * *"
+    # Allows you to trigger manually from GitHub's Actions tab
+    workflow_dispatch:
+
+jobs:
+    updateAndPush:
+        runs-on: ubuntu-latest
+
+        permissions:
+            contents: write
+
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                ref: main
+
+            - name: Install bun
+              run: curl -sL https://bun.sh | sudo bash
+
+            - name: Install Dependencies
+              run: bun install
+
+            - name: Run the output generation
+              run: bun start
+
+            - name: Commit all updates
+              uses: stefanzweifel/git-auto-commit-action@v5
+              with:
+                commit_message: "chore: update latency results."
+                branch: main
+                file_pattern: "outputs/*.*"
+                commit_author: "GitHub Action <actions@github.com>"
