@@ -1,7 +1,8 @@
 import { privateKeyToAccount } from "viem/accounts";
 import { networkName } from "./config";
-import type { CadenceBlockchainContext, Context, EVMBlockchainContext } from "./types";
+import type { CadenceBlockchainContext, Context, EVMBlockchainContext, LatencyResult } from "./types";
 import { FlowConnector, FlowWallet, type NetworkType } from "./flow";
+
 import flowJSON from '../../flow.json' assert { type: "json" };
 
 export * from "./config";
@@ -114,4 +115,40 @@ export async function buildCadenceBlockchainContext(useSoftFinality = false) {
     const wallet = new FlowWallet(connecter)
 
     return { wallet, latencies: {} } as CadenceBlockchainContext;
+}
+
+export function generateFlattenJson(results: LatencyResult[]) {
+    const flattenedResults = results.flatMap((result: LatencyResult) => {
+        // Clean ISO timestamp (remove microseconds, force 'Z')
+        const dt = new Date(result.timestamp);
+        const timestamp = `${dt.toISOString().split('.')[0]}Z`;
+
+        return result.tests.flatMap((test) => {
+            const runner = test.runner;
+            const provider = test.providerKey;
+            const metrics = test.metrics;
+
+            return Object.entries(metrics).flatMap(([metricName, values]) => [
+                {
+                    timestamp,
+                    runner,
+                    provider,
+                    metric: metricName,
+                    label: 'waiting',
+                    value: values.waiting,
+                    series_name: `${runner} | ${provider} | ${metricName} | waiting`
+                },
+                {
+                    timestamp,
+                    runner,
+                    provider,
+                    metric: metricName,
+                    label: 'completed',
+                    value: values.completed,
+                    series_name: `${runner} | ${provider} | ${metricName} | completed`
+                }
+            ]);
+        });
+    });
+    return flattenedResults;
 }

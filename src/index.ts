@@ -1,33 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawn } from "node:child_process";
+import type { ParsedLatency, LatencyData, LatencyResult } from "./utils/types";
+import { generateFlattenJson } from "./utils";
 
 const runners = [
     { providerKey: undefined, tasks: ["transfer-test", "transfer-erc20-test", "transfer-cadence-soft-finality-test", "transfer-cadence-test"] },
     { providerKey: "ALCHEMY_URL", tasks: ["transfer-test", "transfer-erc20-test"] },
 ]
-
-interface LatencyData {
-    providerKey: string;
-    runner: string;
-    outputs: string[];
-}
-
-interface ParsedLatency {
-    order: number;
-    name: string;
-    waiting: number;
-    completed: number;
-}
-
-interface LatencyResult {
-    timestamp: string;
-    tests: Array<{
-        runner: string;
-        providerKey: string;
-        metrics: Record<string, { waiting: number; completed: number }>;
-    }>;
-}
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -226,38 +206,7 @@ async function main() {
     const flattenedOutputPath = path.join(outputsDir, 'flattened_output.json');
 
     // Load and process the latency results
-    const flattenedResults = existingResults.results.flatMap((result: LatencyResult) => {
-        // Clean ISO timestamp (remove microseconds, force 'Z')
-        const dt = new Date(result.timestamp);
-        const timestamp = `${dt.toISOString().split('.')[0]}Z`;
-
-        return result.tests.flatMap((test) => {
-            const runner = test.runner;
-            const provider = test.providerKey;
-            const metrics = test.metrics;
-
-            return Object.entries(metrics).flatMap(([metricName, values]) => [
-                {
-                    timestamp,
-                    runner,
-                    provider,
-                    metric: metricName,
-                    label: 'waiting',
-                    value: values.waiting,
-                    series_name: `${runner} | ${provider} | ${metricName} | waiting`
-                },
-                {
-                    timestamp,
-                    runner,
-                    provider,
-                    metric: metricName,
-                    label: 'completed',
-                    value: values.completed,
-                    series_name: `${runner} | ${provider} | ${metricName} | completed`
-                }
-            ]);
-        });
-    });
+    const flattenedResults = generateFlattenJson(existingResults.results);
 
     // Write flattened results to file
     fs.writeFileSync(flattenedOutputPath, JSON.stringify(flattenedResults, null, 4));

@@ -47,3 +47,30 @@ export interface IFlowSigner {
    */
   buildAuthorization(accountIndex?: number, privateKey?: string): Authz;
 }
+
+export interface LatencyData {
+    providerKey: string;
+    runner: string;
+    outputs: string[];
+}
+
+export interface ParsedLatency {
+    order: number;
+    name: string;
+    waiting: number;
+    completed: number;
+}
+
+export interface LatencyResult {
+    timestamp: string;
+    tests: Array<{
+        runner: string;
+        providerKey: string;
+        metrics: Record<string, { waiting: number; completed: number }>;
+    }>;
+}
+
+export interface ResultJson {
+    timestamp: string;
+    results: Array<LatencyResult>;
+}
