@@ -133,9 +133,8 @@ export function generateFlattenJson(results: LatencyResult[]) {
                 runner,
                 provider,
                 metric: metricName,
-                execute_waiting: values.waiting,
-                execute_completed: values.completed,
-                value: values.completed - values.waiting,
+                latency: values.completed - values.waiting,
+                details: values,
                 series_name: `${runner} | ${provider} | ${metricName}`
             }));
         });
