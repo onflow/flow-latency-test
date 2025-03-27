@@ -128,26 +128,16 @@ export function generateFlattenJson(results: LatencyResult[]) {
             const provider = test.providerKey;
             const metrics = test.metrics;
 
-            return Object.entries(metrics).flatMap(([metricName, values]) => [
-                {
-                    timestamp,
-                    runner,
-                    provider,
-                    metric: metricName,
-                    label: 'waiting',
-                    value: values.waiting,
-                    series_name: `${runner} | ${provider} | ${metricName} | waiting`
-                },
-                {
-                    timestamp,
-                    runner,
-                    provider,
-                    metric: metricName,
-                    label: 'completed',
-                    value: values.completed,
-                    series_name: `${runner} | ${provider} | ${metricName} | completed`
-                }
-            ]);
+            return Object.entries(metrics).map(([metricName, values]) => ({
+                timestamp,
+                runner,
+                provider,
+                metric: metricName,
+                execute_waiting: values.waiting,
+                execute_completed: values.completed,
+                value: values.completed - values.waiting,
+                series_name: `${runner} | ${provider} | ${metricName}`
+            }));
         });
     });
     return flattenedResults;
