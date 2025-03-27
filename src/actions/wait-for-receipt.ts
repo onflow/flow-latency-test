@@ -15,6 +15,7 @@ export class WaitForTransactionReceiptAction extends BaseAction<EVMBlockchainCon
 		const receipt = await waitForTransactionReceipt(config, {
 			chainId: chainNetwork.id,
 			hash: `0x${hash?.substring(2)}`,
+            pollingInterval: 200, // default is 1000
 		});
 		ctx.receipt = receipt;
 		console.log("---- Transaction Receipt: status = ", receipt.status);
