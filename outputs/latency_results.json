@@ -1,5 +1,5 @@
 {
-    "last_updated": "2025-03-27T15:05:03.545Z",
+    "last_updated": "2025-03-27T16:05:27.546Z",
     "results": [
         {
             "timestamp": "2025-03-24T13:41:51.969Z",
@@ -3911,6 +3911,151 @@
                         "GetBalance_Await_receipt->Change": {
                             "waiting": 13850,
                             "completed": 14200
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "timestamp": "2025-03-27T16:05:27.546Z",
+            "tests": [
+                {
+                    "providerKey": "default",
+                    "runner": "transfer-test",
+                    "metrics": {
+                        "0_TransferAction": {
+                            "waiting": 0,
+                            "completed": 482
+                        },
+                        "GetBalance_Await_hash": {
+                            "waiting": 500,
+                            "completed": 526
+                        },
+                        "WaitForTransactionReceiptAction": {
+                            "waiting": 500,
+                            "completed": 6889
+                        },
+                        "GetBalance_Await_receipt->Change": {
+                            "waiting": 6850,
+                            "completed": 6937
+                        }
+                    }
+                },
+                {
+                    "providerKey": "default",
+                    "runner": "transfer-erc20-test",
+                    "metrics": {
+                        "0_TransferAction": {
+                            "waiting": 0,
+                            "completed": 524
+                        },
+                        "GetBalance_Await_hash": {
+                            "waiting": 550,
+                            "completed": 578
+                        },
+                        "WaitForTransactionReceiptAction": {
+                            "waiting": 550,
+                            "completed": 3713
+                        },
+                        "GetBalance_Await_receipt->Change": {
+                            "waiting": 3700,
+                            "completed": 3753
+                        }
+                    }
+                },
+                {
+                    "providerKey": "default",
+                    "runner": "transfer-cadence-soft-finality-test",
+                    "metrics": {
+                        "0_TransferAction": {
+                            "waiting": 0,
+                            "completed": 357
+                        },
+                        "GetBalance_Await_hash": {
+                            "waiting": 300,
+                            "completed": 461
+                        },
+                        "WaitForTransactionExecuted": {
+                            "waiting": 300,
+                            "completed": 5965
+                        },
+                        "GetBalance_Await_receipt->Change": {
+                            "waiting": 5850,
+                            "completed": 6012
+                        },
+                        "WaitForTransactionSealed": {
+                            "waiting": 300,
+                            "completed": 9042
+                        }
+                    }
+                },
+                {
+                    "providerKey": "default",
+                    "runner": "transfer-cadence-test",
+                    "metrics": {
+                        "0_TransferAction": {
+                            "waiting": 0,
+                            "completed": 299
+                        },
+                        "GetBalance_Await_hash": {
+                            "waiting": 250,
+                            "completed": 353
+                        },
+                        "WaitForTransactionExecuted": {
+                            "waiting": 250,
+                            "completed": 6509
+                        },
+                        "GetBalance_Await_receipt->Change": {
+                            "waiting": 6400,
+                            "completed": 9081
+                        },
+                        "WaitForTransactionSealed": {
+                            "waiting": 250,
+                            "completed": 9628
+                        }
+                    }
+                },
+                {
+                    "providerKey": "ALCHEMY_URL",
+                    "runner": "transfer-test",
+                    "metrics": {
+                        "0_TransferAction": {
+                            "waiting": 0,
+                            "completed": 1252
+                        },
+                        "GetBalance_Await_hash": {
+                            "waiting": 1250,
+                            "completed": 1433
+                        },
+                        "WaitForTransactionReceiptAction": {
+                            "waiting": 1250,
+                            "completed": 15156
+                        },
+                        "GetBalance_Await_receipt->Change": {
+                            "waiting": 15100,
+                            "completed": 15353
+                        }
+                    }
+                },
+                {
+                    "providerKey": "ALCHEMY_URL",
+                    "runner": "transfer-erc20-test",
+                    "metrics": {
+                        "0_TransferAction": {
+                            "waiting": 0,
+                            "completed": 1162
+                        },
+                        "GetBalance_Await_hash": {
+                            "waiting": 1150,
+                            "completed": 1304
+                        },
+                        "WaitForTransactionReceiptAction": {
+                            "waiting": 1150,
+                            "completed": 15119
+                        },
+                        "GetBalance_Await_receipt->Change": {
+                            "waiting": 15050,
+                            "completed": 15289
                         }
                     }
                 }
