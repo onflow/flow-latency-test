@@ -58,11 +58,13 @@ export abstract class BaseAction<T extends Context> implements Action<T> {
 
         if (!isTimeout) {
             result = await this.fn(ctx);
+            let isTimeout2 = false;
             if (this.awaitChange) {
                 const oldValue = ctx[this.awaitChange];
                 let timeout = 0;
                 while (result === oldValue) {
                     if (timeout >= maxTimeout) {
+                        isTimeout2 = true;
                         break;
                     }
                     await new Promise((resolve) => setTimeout(resolve, delta));
@@ -71,11 +73,16 @@ export abstract class BaseAction<T extends Context> implements Action<T> {
                 }
             }
             record.completed = Date.now() - startAt;
-            ctx.latencies[this.name] = record;
+            if (isTimeout2) {
+                console.log(`Action [${this.name}] await changes timed out after ${maxTimeout}ms`);
+                record.completed += maxTimeout;
+            }
         } else {
+            record.completed = Date.now() + maxTimeout - startAt;
             console.log(`Action [${this.name}] timed out after ${maxTimeout}ms`);
         }
 
+        ctx.latencies[this.name] = record;
         console.timeEnd(`Action [${this.name}]`);
 
         return result;

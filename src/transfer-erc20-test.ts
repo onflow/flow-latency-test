@@ -23,7 +23,9 @@ async function sentTestTransaction() {
 
 	await batch.run();
 
-	batch.printLatencies();
+    batch.printLatencies();
+
+    process.exit(0);
 }
 // Run the main function
 try {
