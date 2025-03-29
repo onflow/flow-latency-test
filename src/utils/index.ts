@@ -72,11 +72,11 @@ export abstract class BaseAction<T extends Context> implements Action<T> {
             }
             record.completed = Date.now() - startAt;
             ctx.latencies[this.name] = record;
-
-            console.timeEnd(`Action [${this.name}]`);
         } else {
-            console.timeEnd(`Action [${this.name}] timed out after ${maxTimeout}ms`);
+            console.log(`Action [${this.name}] timed out after ${maxTimeout}ms`);
         }
+
+        console.timeEnd(`Action [${this.name}]`);
 
         return result;
     }
