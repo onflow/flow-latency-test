@@ -36,11 +36,11 @@ export abstract class BaseAction<T extends Context> implements Action<T> {
 
         const record = { waiting: 0, completed: 0 };
 
+        const delta = 50;
+        const maxTimeout = 60000;
         // Wait for the awaitField to be non-undefined
         if (this.awaitField) {
             const awaitField = this.awaitField;
-            const maxTimeout = 60000;
-            const delta = 50;
             let timeout = 0;
             while (typeof ctx[awaitField] === "undefined") {
                 if (timeout >= maxTimeout) {
@@ -55,9 +55,14 @@ export abstract class BaseAction<T extends Context> implements Action<T> {
         let result = await this.fn(ctx);
         if (this.awaitChange) {
             const oldValue = ctx[this.awaitChange];
+            let timeout = 0;
             while (result === oldValue) {
-                await new Promise((resolve) => setTimeout(resolve, 50));
+                if (timeout >= maxTimeout) {
+                    break;
+                }
+                await new Promise((resolve) => setTimeout(resolve, delta));
                 result = await this.fn(ctx);
+                timeout += delta;
             }
         }
 
