@@ -37,7 +37,7 @@ export abstract class BaseAction<T extends Context> implements Action<T> {
         const record = { waiting: 0, completed: 0 };
 
         const delta = 50;
-        const maxTimeout = 120000;
+        const maxTimeout = 60000;
         let isTimeout = false;
         // Wait for the awaitField to be non-undefined
         if (this.awaitField) {
