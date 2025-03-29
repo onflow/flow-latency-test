@@ -37,13 +37,15 @@ export abstract class BaseAction<T extends Context> implements Action<T> {
         const record = { waiting: 0, completed: 0 };
 
         const delta = 50;
-        const maxTimeout = 60000;
+        const maxTimeout = 120000;
+        let isTimeout = false;
         // Wait for the awaitField to be non-undefined
         if (this.awaitField) {
             const awaitField = this.awaitField;
             let timeout = 0;
             while (typeof ctx[awaitField] === "undefined") {
                 if (timeout >= maxTimeout) {
+                    isTimeout = true
                     break;
                 }
                 await new Promise((resolve) => setTimeout(resolve, delta));
@@ -52,24 +54,30 @@ export abstract class BaseAction<T extends Context> implements Action<T> {
             record.waiting = timeout;
         }
 
-        let result = await this.fn(ctx);
-        if (this.awaitChange) {
-            const oldValue = ctx[this.awaitChange];
-            let timeout = 0;
-            while (result === oldValue) {
-                if (timeout >= maxTimeout) {
-                    break;
+        let result: unknown;
+
+        if (!isTimeout) {
+            result = await this.fn(ctx);
+            if (this.awaitChange) {
+                const oldValue = ctx[this.awaitChange];
+                let timeout = 0;
+                while (result === oldValue) {
+                    if (timeout >= maxTimeout) {
+                        break;
+                    }
+                    await new Promise((resolve) => setTimeout(resolve, delta));
+                    result = await this.fn(ctx);
+                    timeout += delta;
                 }
-                await new Promise((resolve) => setTimeout(resolve, delta));
-                result = await this.fn(ctx);
-                timeout += delta;
             }
+            record.completed = Date.now() - startAt;
+            ctx.latencies[this.name] = record;
+
+            console.timeEnd(`Action [${this.name}]`);
+        } else {
+            console.timeEnd(`Action [${this.name}] timed out after ${maxTimeout}ms`);
         }
 
-        record.completed = Date.now() - startAt;
-        console.timeEnd(`Action [${this.name}]`);
-
-        ctx.latencies[this.name] = record;
         return result;
     }
 }
