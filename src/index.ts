@@ -1,13 +1,36 @@
+import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { spawn } from "node:child_process";
-import type { ParsedLatency, LatencyData, LatencyResult } from "./utils/types";
 import { generateFlattenJson } from "./utils";
+import type { LatencyData, LatencyResult, ParsedLatency } from "./utils/types";
 
 const runners = [
-    { providerKey: undefined, tasks: ["transfer-test", "transfer-erc20-test", "transfer-cadence-soft-finality-test", "transfer-cadence-test"] },
-    { providerKey: "ALCHEMY_URL", tasks: ["transfer-test", "transfer-erc20-test"] },
-]
+    {
+        providerKey: undefined,
+        tasks: [
+            "transfer-test",
+            "transfer-erc20-test",
+            "transfer-cadence-soft-finality-test",
+            "transfer-cadence-test",
+        ],
+        network: "testnet",
+    },
+    {
+        providerKey: "ALCHEMY_URL",
+        tasks: ["transfer-test", "transfer-erc20-test"],
+        network: "testnet",
+    },
+    {
+        providerKey: undefined,
+        tasks: ["transfer-test", "transfer-cadence-soft-finality-test"],
+        network: "mainnet",
+    },
+    {
+        providerKey: "ALCHEMY_URL",
+        tasks: ["transfer-test"],
+        network: "mainnet",
+    },
+];
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -15,9 +38,7 @@ async function runScript(
     scriptPath: string,
     provider?: string,
 ): Promise<string[]> {
-    console.log(
-        `\n\n---\nRunning script: ${scriptPath} @${provider || "default"}`,
-    );
+    console.log(`\n\n---\nRunning script: ${scriptPath} @${provider || "default"}`);
 
     return new Promise((resolve, reject) => {
         const outputs: string[] = [];
@@ -75,6 +96,12 @@ async function main() {
                 process.env[`TESTNET_${runner.providerKey}`];
         }
 
+        if (typeof runner.network === "string") {
+            process.env.NETWORK = runner.network;
+        }
+
+        console.log(`\n\n---\nRunner: ${runner.providerKey || "default"} @${runner.network}`);
+
         for (const task of runner.tasks) {
             const scriptPath = path.join(__dirname, `${task}.ts`);
             try {
@@ -88,6 +115,7 @@ async function main() {
                 if (latencyIndex !== -1) {
                     const latencyOutputs = outputs.slice(latencyIndex + 1);
                     results.push({
+                        network: runner.network,
                         providerKey: runner.providerKey || "default",
                         runner: task,
                         outputs: latencyOutputs,
@@ -104,8 +132,8 @@ async function main() {
         const parsedOutputs = result.outputs
             .map(parseLatencyLine)
             .filter((output): output is ParsedLatency => output !== null);
-        console.log("Parsed Outputs:", parsedOutputs);
         return {
+            network: result.network,
             providerKey: result.providerKey,
             runner: result.runner,
             latencies: parsedOutputs,
@@ -126,6 +154,7 @@ async function main() {
 
     // Header
     const header = [
+        "network",
         "providerKey",
         "runner",
         ...allNames.flatMap((name) => [`${name}(waiting)`, `${name}(completed)`]),
@@ -135,13 +164,12 @@ async function main() {
     // Data rows
     for (const result of parsedResults) {
         const row = [
+            result.network,
             result.providerKey,
             result.runner,
             ...allNames.flatMap((name) => {
                 const latency = result.latencies.find((l) => l.name === name);
-                return latency
-                    ? [String(latency.waiting), String(latency.completed)]
-                    : ["", ""];
+                return latency ? [String(latency.waiting), String(latency.completed)] : ["", ""];
             }),
         ];
         csvRows.push(row.join(","));
@@ -172,16 +200,20 @@ async function main() {
     }
 
     // Convert parsedResults to the format expected in latency_results.json
-    const formattedResults = parsedResults.map(result => ({
+    const formattedResults = parsedResults.map((result) => ({
+        network: result.network ?? "testnet",
         providerKey: result.providerKey,
         runner: result.runner,
-        metrics: result.latencies.reduce((acc, latency) => {
-            acc[latency.name] = {
-                waiting: latency.waiting,
-                completed: latency.completed,
-            };
-            return acc;
-        }, {} as Record<string, { waiting: number, completed: number }>),
+        metrics: result.latencies.reduce(
+            (acc, latency) => {
+                acc[latency.name] = {
+                    waiting: latency.waiting,
+                    completed: latency.completed,
+                };
+                return acc;
+            },
+            {} as Record<string, { waiting: number; completed: number }>,
+        ),
     }));
 
     // Add the formatted results to the existing results

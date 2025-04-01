@@ -1,9 +1,9 @@
 import * as fcl from "@onflow/fcl";
 import type { ArgsFn } from "@onflow/fcl-core/types/exec/args";
-import type { CompositeSignature, Account } from "@onflow/typedefs";
+import type { Account, CompositeSignature } from "@onflow/typedefs";
+import type { Authz, IFlowScriptExecutor, IFlowSigner } from "../types";
 import type { FlowConnector } from "./flow.connector";
 import { signWithKey } from "./pure.signer";
-import type { IFlowScriptExecutor, IFlowSigner, Authz } from "../types";
 
 /**
  * Flow wallet Provider
@@ -16,13 +16,17 @@ export class FlowWallet implements IFlowSigner, IFlowScriptExecutor {
     public maxKeyIndex = 0;
 
     constructor(public readonly connector: FlowConnector) {
-        const signerAddr = process.env.FLOW_ADDRESS;
+        const signerAddr =
+            process.env[`${connector.network.toUpperCase()}_FLOW_ADDRESS`] ||
+            process.env.FLOW_ADDRESS;
         if (!signerAddr) {
             throw new Error("No signer info");
         }
         this.address = signerAddr;
 
-        const privateKey = process.env.FLOW_PRIVATE_KEY;
+        const privateKey =
+            process.env[`${connector.network.toUpperCase()}_FLOW_PRIVATE_KEY`] ||
+            process.env.FLOW_PRIVATE_KEY;
         if (!privateKey) {
             console.warn(`The default Flow wallet ${this.address} has no private key`);
         } else {

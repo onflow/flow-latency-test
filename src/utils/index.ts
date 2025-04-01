@@ -1,7 +1,12 @@
 import { privateKeyToAccount } from "viem/accounts";
 import { networkName } from "./config";
-import type { CadenceBlockchainContext, Context, EVMBlockchainContext, LatencyResult } from "./types";
 import { FlowConnector, FlowWallet, type NetworkType } from "./flow";
+import type {
+    CadenceBlockchainContext,
+    Context,
+    EVMBlockchainContext,
+    LatencyResult,
+} from "./types";
 
 import flowJSON from '../../flow.json' assert { type: "json" };
 
@@ -145,6 +150,7 @@ export function generateFlattenJson(results: LatencyResult[]) {
 
         return result.tests.flatMap((test) => {
             const runner = test.runner;
+            const network = test.network ?? "testnet";
             const provider = test.providerKey;
             const metrics = test.metrics;
 
@@ -152,6 +158,7 @@ export function generateFlattenJson(results: LatencyResult[]) {
                 timestamp,
                 runner,
                 provider,
+                network,
                 metric: metricName,
                 latency: values.completed - values.waiting,
                 details: values,
