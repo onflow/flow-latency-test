@@ -27,6 +27,8 @@ export interface Action<T extends Context> {
 }
 
 export abstract class BaseAction<T extends Context> implements Action<T> {
+    constructor(protected readonly order?: number) {}
+
     abstract get name(): string;
     abstract get awaitField(): string | undefined;
     abstract fn(ctx: T): Promise<unknown>;
@@ -50,7 +52,7 @@ export abstract class BaseAction<T extends Context> implements Action<T> {
             let timeout = 0;
             while (typeof ctx[awaitField] === "undefined") {
                 if (timeout >= maxTimeout) {
-                    isTimeout = true
+                    isTimeout = true;
                     break;
                 }
                 await new Promise((resolve) => setTimeout(resolve, delta));

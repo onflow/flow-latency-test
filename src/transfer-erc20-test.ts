@@ -1,27 +1,27 @@
 import { Batch, buildEVMBlockchainContext } from "./utils";
 
 import {
-	TransferERC20Action,
-	GeERC20BalanceAction,
-	WaitForTransactionReceiptAction,
+    GeERC20BalanceAction,
+    TransferERC20Action,
+    WaitForTransactionReceiptAction,
 } from "./actions";
 
 async function sentTestTransaction() {
-	// Load EVM Private Key from environment variable
-	const privateKey = process.env.PRIVATE_KEY || "";
-	if (!privateKey) {
-		throw new Error("No private key found in the environment variable");
-	}
+    // Load EVM Private Key from environment variable
+    const privateKey = process.env.PRIVATE_KEY || "";
+    if (!privateKey) {
+        throw new Error("No private key found in the environment variable");
+    }
 
-	const ctx = await buildEVMBlockchainContext(privateKey);
-	const batch = new Batch(ctx, [
-		new TransferERC20Action(),
-		new GeERC20BalanceAction("hash"),
-		new WaitForTransactionReceiptAction(),
-		new GeERC20BalanceAction("receipt", "balance:await_hash"),
-	]);
+    const ctx = await buildEVMBlockchainContext(privateKey);
+    const batch = new Batch(ctx, [
+        new TransferERC20Action(0),
+        new GeERC20BalanceAction("hash", undefined, 1),
+        new WaitForTransactionReceiptAction(2),
+        new GeERC20BalanceAction("receipt", "balance:await_hash", 3),
+    ]);
 
-	await batch.run();
+    await batch.run();
 
     batch.printLatencies();
 
@@ -29,7 +29,7 @@ async function sentTestTransaction() {
 }
 // Run the main function
 try {
-	await sentTestTransaction();
+    await sentTestTransaction();
 } catch (error) {
-	console.error("Error sending transaction:", error);
+    console.error("Error sending transaction:", error);
 }

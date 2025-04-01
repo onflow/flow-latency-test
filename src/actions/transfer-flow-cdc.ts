@@ -1,10 +1,10 @@
+import cadenceCode from "../cadence/transactions/transfer_flow_to_cadence_or_evm.cdc?raw";
 import { BaseAction } from "../utils";
 import type { CadenceBlockchainContext } from "../utils/types";
-import cadenceCode from '../cadence/transactions/transfer_flow_to_cadence_or_evm.cdc?raw';
 
 export class CadenceTransferAction extends BaseAction<CadenceBlockchainContext> {
     get name() {
-        return "0_TransferAction";
+        return `${this.order ?? 0}_TransferAction`;
     }
     get awaitField() {
         return "wallet";

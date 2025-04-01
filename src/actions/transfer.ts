@@ -1,11 +1,11 @@
+import { sendTransaction } from "@wagmi/core";
 import { parseEther } from "viem";
 import { BaseAction, config } from "../utils";
 import type { EVMBlockchainContext } from "../utils/types";
-import { sendTransaction } from "@wagmi/core";
 
 export class TransferAction extends BaseAction<EVMBlockchainContext> {
 	get name() {
-		return "0_TransferAction";
+		return `${this.order ?? 0}_TransferAction`;
 	}
 	get awaitField() {
 		return "account";

@@ -5,14 +5,14 @@ export class GetCadenceBalanceAction extends BaseAction<CadenceBlockchainContext
     private _field: string;
     private _change: string | undefined;
 
-    constructor(awaitField?: string, awaitChange?: string) {
-        super();
+    constructor(awaitField?: string, awaitChange?: string, order?: number) {
+        super(order);
         this._field = awaitField ?? "hash";
         this._change = awaitChange;
     }
 
     get name() {
-        return `GetBalance_Await_${this._field}${this.awaitChange ? "->Change" : ""}`;
+        return `${this.order ? `${this.order}_` : ""}GetBalance_Await_${this._field}${this.awaitChange ? "->Change" : ""}`;
     }
     get awaitField() {
         return this._field;

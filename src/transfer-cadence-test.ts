@@ -1,8 +1,8 @@
 import { Batch, buildCadenceBlockchainContext } from "./utils";
 
 import {
-    GetCadenceBalanceAction,
     CadenceTransferAction,
+    GetCadenceBalanceAction,
     WaitForTransactionExecuted,
     WaitForTransactionSealed,
 } from "./actions";
@@ -10,11 +10,11 @@ import {
 async function sentTestTransaction() {
     const ctx = await buildCadenceBlockchainContext();
     const batch = new Batch(ctx, [
-        new CadenceTransferAction(),
-        new GetCadenceBalanceAction("hash"),
-        new WaitForTransactionExecuted(),
-        new WaitForTransactionSealed(),
-        new GetCadenceBalanceAction("receipt", "balance:await_hash"),
+        new CadenceTransferAction(0),
+        new GetCadenceBalanceAction("hash", undefined, 1),
+        new WaitForTransactionExecuted(2),
+        new GetCadenceBalanceAction("receipt", "balance:await_hash", 3),
+        new WaitForTransactionSealed(4),
     ]);
 
     await batch.run();

@@ -3,7 +3,7 @@ import type { CadenceBlockchainContext } from "../utils/types";
 
 export class WaitForTransactionExecuted extends BaseAction<CadenceBlockchainContext> {
     get name() {
-        return "WaitForTransactionExecuted";
+        return `${this.order ? `${this.order}_` : ""}WaitForTransactionExecuted`;
     }
     get awaitField() {
         return "hash";
