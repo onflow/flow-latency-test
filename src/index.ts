@@ -34,12 +34,7 @@ const runners = [
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-async function runScript(
-    scriptPath: string,
-    provider?: string,
-): Promise<string[]> {
-    console.log(`\n\n---\nRunning script: ${scriptPath} @${provider || "default"}`);
-
+async function runScript(scriptPath: string): Promise<string[]> {
     return new Promise((resolve, reject) => {
         const outputs: string[] = [];
         const process = spawn("bun", [scriptPath], {
@@ -100,12 +95,13 @@ async function main() {
             process.env.NETWORK = runner.network;
         }
 
-        console.log(`\n\n---\nRunner: ${runner.providerKey || "default"} @${runner.network}`);
-
         for (const task of runner.tasks) {
             const scriptPath = path.join(__dirname, `${task}.ts`);
             try {
-                const outputs = await runScript(scriptPath, runner.providerKey);
+                console.log(
+                    `\n\n---\n\nRunning script: ${scriptPath} @${runner.providerKey || "default"} - ${runner.network}`,
+                );
+                const outputs = await runScript(scriptPath);
                 await delay(2000); // 2 second delay between executions
 
                 // Find the latency section
