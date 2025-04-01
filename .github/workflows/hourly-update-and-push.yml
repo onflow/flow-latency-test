@@ -15,10 +15,10 @@ jobs:
             contents: write
 
         env:
-            NETWORK: ${{ vars.NETWORK }}
-            PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
             RECIPIENT: ${{ vars.RECIPIENT }}
-            FLOW_ADDRESS: ${{ vars.FLOW_ADDRESS }}
+            MAINNET_FLOW_ADDRESS: ${{ vars.MAINNET_FLOW_ADDRESS }}
+            TESTNET_FLOW_ADDRESS: ${{ vars.TESTNET_FLOW_ADDRESS }}
+            PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
             FLOW_PRIVATE_KEY: ${{ secrets.FLOW_PRIVATE_KEY }}
             TESTNET_ALCHEMY_URL: ${{ secrets.TESTNET_ALCHEMY_URL }}
             MAINNET_ALCHEMY_URL: ${{ secrets.MAINNET_ALCHEMY_URL }}
