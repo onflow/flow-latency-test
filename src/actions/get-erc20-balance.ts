@@ -1,5 +1,6 @@
 import { readContract } from "@wagmi/core";
-import { BaseAction, config } from "../utils";
+import { flowMainnet, flowTestnet } from "viem/chains";
+import { BaseAction, config, networkName } from "../utils";
 import type { EVMBlockchainContext } from "../utils/types";
 
 export class GeERC20BalanceAction extends BaseAction<EVMBlockchainContext> {
@@ -50,6 +51,7 @@ export class GeERC20BalanceAction extends BaseAction<EVMBlockchainContext> {
         // get erc20 balance
         const result = await readContract(config, {
             account: account,
+            chainId: networkName === "mainnet" ? flowMainnet.id : flowTestnet.id,
             abi,
             address: "0x5e65b6b04fba51d95409712978cb91e99d93ae73",
             args: [account.address],

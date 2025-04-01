@@ -1,5 +1,6 @@
 import { getBalance } from "@wagmi/core";
-import { BaseAction, config } from "../utils";
+import { flowMainnet, flowTestnet } from "viem/chains";
+import { BaseAction, config, networkName } from "../utils";
 import type { EVMBlockchainContext } from "../utils/types";
 
 export class GetBalanceAction extends BaseAction<EVMBlockchainContext> {
@@ -25,7 +26,10 @@ export class GetBalanceAction extends BaseAction<EVMBlockchainContext> {
     async fn(ctx: EVMBlockchainContext) {
         const { account } = ctx;
         // get the account balance
-        const balance = await getBalance(config, { address: account.address });
+        const balance = await getBalance(config, {
+            address: account.address,
+            chainId: networkName === "mainnet" ? flowMainnet.id : flowTestnet.id,
+        });
         console.log("--- Account Balance:", balance.formatted);
         ctx[`balance:await_${this.awaitField}`] = balance.value;
         return balance.value;
