@@ -11,6 +11,9 @@ export class TransferERC20Action extends BaseAction<EVMBlockchainContext> {
     get awaitField() {
         return "account";
     }
+    get resultField() {
+        return "hash";
+    }
 
     async fn(ctx: EVMBlockchainContext) {
         const { account } = ctx;
@@ -27,7 +30,7 @@ export class TransferERC20Action extends BaseAction<EVMBlockchainContext> {
             // Build the ERC20 transfer data
             data: `0xa9059cbb000000000000000000000000${no0xRecipient}${amount.toString(16).padStart(64, "0")}`,
         });
-        ctx.hash = hash;
         console.log(`--- Transaction sent with Hash: ${hash}`);
+        return hash;
     }
 }

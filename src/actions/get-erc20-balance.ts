@@ -22,6 +22,9 @@ export class GeERC20BalanceAction extends BaseAction<EVMBlockchainContext> {
     get awaitChange() {
         return this._change;
     }
+    get resultField() {
+        return `balance:await_${this.awaitField}`;
+    }
 
     async fn(ctx: EVMBlockchainContext) {
         const { account } = ctx;
@@ -59,7 +62,6 @@ export class GeERC20BalanceAction extends BaseAction<EVMBlockchainContext> {
         });
 
         console.log("--- Account Balance:", result);
-        ctx[`balance:await_${this.awaitField}`] = result;
         return result;
     }
 }

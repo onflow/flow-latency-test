@@ -22,6 +22,9 @@ export class GetBalanceAction extends BaseAction<EVMBlockchainContext> {
     get awaitChange() {
         return this._change;
     }
+    get resultField() {
+        return `balance:await_${this.awaitField}`;
+    }
 
     async fn(ctx: EVMBlockchainContext) {
         const { account } = ctx;
@@ -31,7 +34,6 @@ export class GetBalanceAction extends BaseAction<EVMBlockchainContext> {
             chainId: networkName === "mainnet" ? flowMainnet.id : flowTestnet.id,
         });
         console.log("--- Account Balance:", balance.formatted);
-        ctx[`balance:await_${this.awaitField}`] = balance.value;
         return balance.value;
     }
 }

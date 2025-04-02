@@ -8,6 +8,9 @@ export class WaitForTransactionExecuted extends BaseAction<CadenceBlockchainCont
     get awaitField() {
         return "hash";
     }
+    get resultField() {
+        return "receipt";
+    }
 
     async fn(ctx: CadenceBlockchainContext) {
         const { wallet } = ctx;
@@ -16,7 +19,7 @@ export class WaitForTransactionExecuted extends BaseAction<CadenceBlockchainCont
         }
 
         const receipt = await wallet.connector.onceTransactionExecuted(ctx.hash);
-        ctx.receipt = receipt;
         console.log("---- Transaction Status: ", receipt.statusString);
+        return receipt;
     }
 }

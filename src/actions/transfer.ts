@@ -11,6 +11,9 @@ export class TransferAction extends BaseAction<EVMBlockchainContext> {
     get awaitField() {
         return "account";
     }
+    get resultField() {
+        return "hash";
+    }
 
     async fn(ctx: EVMBlockchainContext) {
         const { account } = ctx;
@@ -27,7 +30,7 @@ export class TransferAction extends BaseAction<EVMBlockchainContext> {
             to: `0x${no0xRecipient}`,
             value: parseEther("0.0001"),
         });
-        ctx.hash = hash;
         console.log(`--- Transaction sent with Hash: ${hash}`);
+        return hash;
     }
 }

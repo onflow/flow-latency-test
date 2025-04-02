@@ -36,8 +36,11 @@ export abstract class BaseAction<T extends Context> implements Action<T> {
     get awaitChange(): string | undefined {
         return undefined;
     }
+    get resultField(): string | undefined {
+        return undefined;
+    }
 
-    async handler(ctx: T): Promise<unknown> {
+    async handler(ctx: T) {
         const startAt = Date.now();
         console.time(`Action [${this.name}]`);
 
@@ -55,10 +58,10 @@ export abstract class BaseAction<T extends Context> implements Action<T> {
                     isTimeout = true;
                     break;
                 }
-                await new Promise((resolve) => setTimeout(resolve, delta));
                 timeout += delta;
+                await new Promise((resolve) => setTimeout(resolve, delta));
             }
-            record.waiting = timeout;
+            record.waiting = isTimeout ? timeout : Date.now() - startAt;
         }
 
         let result: unknown;
@@ -90,9 +93,13 @@ export abstract class BaseAction<T extends Context> implements Action<T> {
         }
 
         ctx.latencies[this.name] = record;
-        console.timeEnd(`Action [${this.name}]`);
+        // Set the result to the context
+        if (typeof this.resultField === "string") {
+            // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+            (ctx as any)[this.resultField] = result;
+        }
 
-        return result;
+        console.timeEnd(`Action [${this.name}]`);
     }
 }
 

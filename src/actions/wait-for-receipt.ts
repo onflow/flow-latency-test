@@ -10,6 +10,9 @@ export class WaitForTransactionReceiptAction extends BaseAction<EVMBlockchainCon
     get awaitField() {
         return "hash";
     }
+    get resultField() {
+        return "receipt";
+    }
 
     async fn(ctx: EVMBlockchainContext) {
         const { hash } = ctx;
@@ -22,8 +25,8 @@ export class WaitForTransactionReceiptAction extends BaseAction<EVMBlockchainCon
                 pollingInterval: 200, // default is 1000
                 timeout: 90000, // 1.5 minutes timeout for the wait
             });
-            ctx.receipt = receipt;
             console.log("---- Transaction Receipt: status = ", receipt.status);
+            return receipt;
         } catch (e: unknown) {
             const error = e as Error;
             console.error("---- Error waiting for transaction receipt: ", error);

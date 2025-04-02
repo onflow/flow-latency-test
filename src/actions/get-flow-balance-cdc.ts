@@ -20,13 +20,15 @@ export class GetCadenceBalanceAction extends BaseAction<CadenceBlockchainContext
     get awaitChange() {
         return this._change;
     }
+    get resultField() {
+        return `balance:await_${this.awaitField}`;
+    }
 
     async fn(ctx: CadenceBlockchainContext) {
         const { wallet } = ctx;
 
         const account = await wallet.connector.getAccount(wallet.address);
         console.log("--- Account Balance:", account.balance);
-        ctx[`balance:await_${this.awaitField}`] = account.balance;
         return account.balance;
     }
 }
