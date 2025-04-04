@@ -1,5 +1,5 @@
 {
-    "last_updated": "2025-04-04T11:06:21.036Z",
+    "last_updated": "2025-04-04T12:08:32.688Z",
     "results": [
         {
             "timestamp": "2025-03-24T13:41:51.969Z",
@@ -27644,6 +27644,184 @@
                         "4_WaitForTransactionSealed": {
                             "waiting": 580,
                             "completed": 10145
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "timestamp": "2025-04-04T12:08:32.688Z",
+            "tests": [
+                {
+                    "network": "testnet",
+                    "providerKey": "default",
+                    "runner": "transfer-test",
+                    "metrics": {
+                        "0_TransferAction": {
+                            "waiting": 0,
+                            "completed": 988
+                        },
+                        "1_GetBalance_Await_hash": {
+                            "waiting": 1006,
+                            "completed": 1059
+                        },
+                        "2_WaitForTransactionReceipt": {
+                            "waiting": 1006,
+                            "completed": 4268
+                        },
+                        "3_GetBalance_Await_receipt->Change": {
+                            "waiting": 4284,
+                            "completed": 4321
+                        }
+                    }
+                },
+                {
+                    "network": "testnet",
+                    "providerKey": "default",
+                    "runner": "transfer-erc20-test",
+                    "metrics": {
+                        "0_TransferAction": {
+                            "waiting": 0,
+                            "completed": 779
+                        },
+                        "1_GetBalance_Await_hash": {
+                            "waiting": 808,
+                            "completed": 856
+                        },
+                        "2_WaitForTransactionReceipt": {
+                            "waiting": 811,
+                            "completed": 4123
+                        },
+                        "3_GetBalance_Await_receipt->Change": {
+                            "waiting": 4139,
+                            "completed": 4173
+                        }
+                    }
+                },
+                {
+                    "network": "testnet",
+                    "providerKey": "default",
+                    "runner": "transfer-cadence-soft-finality-test",
+                    "metrics": {
+                        "0_TransferAction": {
+                            "waiting": 0,
+                            "completed": 459
+                        },
+                        "1_GetBalance_Await_hash": {
+                            "waiting": 489,
+                            "completed": 547
+                        },
+                        "2_WaitForTransactionExecuted": {
+                            "waiting": 490,
+                            "completed": 4776
+                        },
+                        "3_GetBalance_Await_receipt->Change": {
+                            "waiting": 4813,
+                            "completed": 4870
+                        },
+                        "4_WaitForTransactionSealed": {
+                            "waiting": 491,
+                            "completed": 7905
+                        }
+                    }
+                },
+                {
+                    "network": "testnet",
+                    "providerKey": "default",
+                    "runner": "transfer-cadence-test",
+                    "metrics": {
+                        "0_TransferAction": {
+                            "waiting": 0,
+                            "completed": 295
+                        },
+                        "1_GetBalance_Await_hash": {
+                            "waiting": 322,
+                            "completed": 402
+                        },
+                        "2_WaitForTransactionExecuted": {
+                            "waiting": 323,
+                            "completed": 3527
+                        },
+                        "3_GetBalance_Await_receipt->Change": {
+                            "waiting": 3541,
+                            "completed": 6375
+                        },
+                        "4_WaitForTransactionSealed": {
+                            "waiting": 325,
+                            "completed": 6682
+                        }
+                    }
+                },
+                {
+                    "network": "testnet",
+                    "providerKey": "ALCHEMY_URL",
+                    "runner": "transfer-test",
+                    "metrics": {
+                        "0_TransferAction": {
+                            "waiting": 0,
+                            "completed": 561
+                        },
+                        "1_GetBalance_Await_hash": {
+                            "waiting": 602,
+                            "completed": 661
+                        },
+                        "2_WaitForTransactionReceipt": {
+                            "waiting": 603,
+                            "completed": 13706
+                        },
+                        "3_GetBalance_Await_receipt->Change": {
+                            "waiting": 13726,
+                            "completed": 13762
+                        }
+                    }
+                },
+                {
+                    "network": "testnet",
+                    "providerKey": "ALCHEMY_URL",
+                    "runner": "transfer-erc20-test",
+                    "metrics": {
+                        "0_TransferAction": {
+                            "waiting": 0,
+                            "completed": 385
+                        },
+                        "1_GetBalance_Await_hash": {
+                            "waiting": 402,
+                            "completed": 449
+                        },
+                        "2_WaitForTransactionReceipt": {
+                            "waiting": 405,
+                            "completed": 13445
+                        },
+                        "3_GetBalance_Await_receipt->Change": {
+                            "waiting": 13471,
+                            "completed": 13515
+                        }
+                    }
+                },
+                {
+                    "network": "mainnet",
+                    "providerKey": "default",
+                    "runner": "transfer-cadence-soft-finality-test",
+                    "metrics": {
+                        "0_TransferAction": {
+                            "waiting": 0,
+                            "completed": 499
+                        },
+                        "1_GetBalance_Await_hash": {
+                            "waiting": 509,
+                            "completed": 556
+                        },
+                        "2_WaitForTransactionExecuted": {
+                            "waiting": 509,
+                            "completed": 8246
+                        },
+                        "3_GetBalance_Await_receipt->Change": {
+                            "waiting": 8249,
+                            "completed": 8300
+                        },
+                        "4_WaitForTransactionSealed": {
+                            "waiting": 511,
+                            "completed": 11415
                         }
                     }
                 }
