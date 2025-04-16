@@ -1,5 +1,5 @@
 {
-    "last_updated": "2025-04-16T23:26:59.530Z",
+    "last_updated": "2025-04-16T23:28:20.685Z",
     "results": [
         {
             "timestamp": "2025-03-24T13:41:51.969Z",
@@ -83028,6 +83028,61 @@
                         "4_WaitForTransactionSealed": {
                             "waiting": 463,
                             "completed": 9587
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "timestamp": "2025-04-16T23:28:20.685Z",
+            "tests": [
+                {
+                    "network": "mainnet",
+                    "providerKey": "default",
+                    "runner": "transfer-test",
+                    "metrics": {
+                        "0_TransferAction": {
+                            "waiting": 1,
+                            "completed": 1237
+                        },
+                        "1_GetBalance_Await_hash": {
+                            "waiting": 1258,
+                            "completed": 1298
+                        },
+                        "2_WaitForTransactionReceipt": {
+                            "waiting": 1259,
+                            "completed": 7742
+                        },
+                        "3_GetBalance_Await_receipt->Change": {
+                            "waiting": 7789,
+                            "completed": 7827
+                        }
+                    }
+                },
+                {
+                    "network": "mainnet",
+                    "providerKey": "default",
+                    "runner": "transfer-cadence-soft-finality-test",
+                    "metrics": {
+                        "0_TransferAction": {
+                            "waiting": 0,
+                            "completed": 596
+                        },
+                        "1_GetBalance_Await_hash": {
+                            "waiting": 597,
+                            "completed": 687
+                        },
+                        "2_WaitForTransactionExecuted": {
+                            "waiting": 597,
+                            "completed": 7441
+                        },
+                        "3_GetBalance_Await_receipt->Change": {
+                            "waiting": 7476,
+                            "completed": 7551
+                        },
+                        "4_WaitForTransactionSealed": {
+                            "waiting": 599,
+                            "completed": 10710
                         }
                     }
                 }
