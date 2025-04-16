@@ -25,7 +25,7 @@ export class FlowConnector implements IFlowScriptExecutor {
     get rpcEndpoint() {
         switch (this.network) {
             case "mainnet":
-                return this.defaultRpcEndpoint ?? "https://mainnet.evm.nodes.onflow.org";
+                return this.defaultRpcEndpoint ?? "https://mainnet.onflow.org";
             case "testnet":
                 return this.defaultRpcEndpoint ?? "https://testnet.onflow.org";
             case "emulator":
