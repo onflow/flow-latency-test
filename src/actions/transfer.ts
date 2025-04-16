@@ -23,6 +23,7 @@ export class TransferAction extends BaseAction<EVMBlockchainContext> {
 
         console.log("Network:", networkName);
         console.log("Chain ID:", networkName === "mainnet" ? flowMainnet.id : flowTestnet.id);
+        console.log(config);
 
         const hash = await sendTransaction(config, {
             account: account,
