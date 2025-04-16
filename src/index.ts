@@ -5,31 +5,31 @@ import { generateFlattenJson } from "./utils";
 import type { LatencyData, LatencyResult, ParsedLatency } from "./utils/types";
 
 const runners = [
-    {
-        providerKey: undefined,
-        tasks: [
-            "transfer-test",
-            "transfer-erc20-test",
-            "transfer-cadence-soft-finality-test",
-            "transfer-cadence-test",
-        ],
-        network: "testnet",
-    },
-    {
-        providerKey: "ALCHEMY_URL",
-        tasks: ["transfer-test", "transfer-erc20-test"],
-        network: "testnet",
-    },
+    // {
+    //     providerKey: undefined,
+    //     tasks: [
+    //         "transfer-test",
+    //         "transfer-erc20-test",
+    //         "transfer-cadence-soft-finality-test",
+    //         "transfer-cadence-test",
+    //     ],
+    //     network: "testnet",
+    // },
+    // {
+    //     providerKey: "ALCHEMY_URL",
+    //     tasks: ["transfer-test", "transfer-erc20-test"],
+    //     network: "testnet",
+    // },
     {
         providerKey: undefined,
         tasks: ["transfer-test", "transfer-cadence-soft-finality-test"],
         network: "mainnet",
     },
-    {
-        providerKey: "ALCHEMY_URL",
-        tasks: ["transfer-test"],
-        network: "mainnet",
-    },
+    // {
+    //     providerKey: "ALCHEMY_URL",
+    //     tasks: ["transfer-test"],
+    //     network: "mainnet",
+    // },
 ];
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
