@@ -105,12 +105,28 @@ async function main() {
         } else {
             // If no provider key, we have to delete the variables to ensure proper
             // selection of the default provider
-            delete process.env.EVM_MAINNET_RPC_ENDPOINT_URL;
-            delete process.env.EVM_TESTNET_RPC_ENDPOINT_URL;
+            process.env.EVM_MAINNET_RPC_ENDPOINT_URL = undefined;
+            process.env.EVM_TESTNET_RPC_ENDPOINT_URL = undefined;
         }
 
         if (typeof runner.network === "string") {
             process.env.NETWORK = runner.network;
+        }
+
+        let printableEndpoint: string | undefined = undefined;
+        const endpoint =
+            (runner.network === "mainnet"
+                ? process.env.EVM_MAINNET_RPC_ENDPOINT_URL
+                : process.env.EVM_TESTNET_RPC_ENDPOINT_URL) ?? undefined;
+        if (endpoint) {
+            // Update printable url with * to hide api key
+            if (runner.providerKey === "ALCHEMY_URL") {
+                // Replace the api key with asterisks for security
+                printableEndpoint = endpoint.replace(/\/v2\/.*$/, "/v2/******");
+            } else if (runner.providerKey === "QUICKNODE_URL") {
+                // Replace the subdomain with asterisks for security, ensuring https
+                printableEndpoint = endpoint.replace(/^https?:\/\/[^.\/]+/, "https://******");
+            }
         }
 
         for (const task of runner.tasks) {
@@ -119,6 +135,7 @@ async function main() {
                 console.log(
                     `\n\n---\n\nRunning script: ${scriptPath} @${runner.providerKey || "default"} - ${runner.network}`,
                 );
+                console.log(`Endpoint: ${printableEndpoint ?? "Not set, use default"}`);
                 const outputs = await runScript(scriptPath);
                 await delay(2000); // 2 second delay between executions
 
