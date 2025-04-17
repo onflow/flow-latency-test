@@ -22,6 +22,8 @@ jobs:
             FLOW_PRIVATE_KEY: ${{ secrets.FLOW_PRIVATE_KEY }}
             TESTNET_ALCHEMY_URL: ${{ secrets.TESTNET_ALCHEMY_URL }}
             MAINNET_ALCHEMY_URL: ${{ secrets.MAINNET_ALCHEMY_URL }}
+            TESTNET_QUICKNODE_URL: ${{ secrets.TESTNET_QUICKNODE_URL }}
+            MAINNET_QUICKNODE_URL: ${{ secrets.MAINNET_QUICKNODE_URL }}
 
         steps:
             - uses: actions/checkout@v4
