@@ -30,6 +30,16 @@ const runners = [
         tasks: ["transfer-test"],
         network: "mainnet",
     },
+    {
+        providerKey: "QUICKNODE_URL",
+        tasks: ["transfer-test", "transfer-erc20-test"],
+        network: "testnet",
+    },
+    {
+        providerKey: "QUICKNODE_URL",
+        tasks: ["transfer-test"],
+        network: "mainnet",
+    },
 ];
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
