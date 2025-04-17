@@ -93,12 +93,20 @@ async function main() {
     const results: LatencyData[] = [];
 
     for (const runner of runners) {
+        // TODO: This should not be how env vars are used, we should consider
+        // using a config file or some other method to manage these provider URLs
+
         // Set environment variables based on provider key
         if (runner.providerKey) {
             process.env.EVM_MAINNET_RPC_ENDPOINT_URL =
                 process.env[`MAINNET_${runner.providerKey}`];
             process.env.EVM_TESTNET_RPC_ENDPOINT_URL =
                 process.env[`TESTNET_${runner.providerKey}`];
+        } else {
+            // If no provider key, we have to delete the variables to ensure proper
+            // selection of the default provider
+            delete process.env.EVM_MAINNET_RPC_ENDPOINT_URL;
+            delete process.env.EVM_TESTNET_RPC_ENDPOINT_URL;
         }
 
         if (typeof runner.network === "string") {
