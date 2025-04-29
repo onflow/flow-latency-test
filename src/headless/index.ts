@@ -12,6 +12,8 @@ const EXTENSION_FOLDER_PATH = path.join(__dirname, "../../extensions");
 // User data directory to persist browser state
 const USER_DATA_DIR = path.join(__dirname, "../../user-data");
 
+const UNLOCK_PASSWORD = process.env.CHROME_METAMASK_PASSWORD || "123456";
+
 const extensionPaths: Record<ExtensionType, ExtensionConfig> = {
     metamask: {
         path: path.join(EXTENSION_FOLDER_PATH, "metamask-chrome"),
@@ -27,6 +29,7 @@ export class HeadlessBrowser {
     private page: Page | undefined = undefined;
     private context: BrowserContext | undefined = undefined;
     private extensionWorker: Worker | undefined = undefined;
+    private extensionPage: Page | undefined = undefined;
 
     constructor(private readonly extension: ExtensionType) {
         if (!extensionTypes.includes(extension)) {
@@ -41,16 +44,17 @@ export class HeadlessBrowser {
         return extensionPaths[this.extension];
     }
 
+    get expectedExtensionUrlPrefix() {
+        return `chrome-extension://${this.extensionConfig.extensionId}`;
+    }
+
     async initialize() {
         const args = [
             `--disable-extensions-except=${this.extensionConfig.path}`,
             `--load-extension=${this.extensionConfig.path}`,
-            "--disable-setuid-sandbox",
             "--disable-dev-shm-usage",
             "--disable-gpu",
             "--disable-software-rasterizer",
-            "--disable-features=IsolateOrigins,site-per-process",
-            "--disable-site-isolation-trials",
         ];
         console.log("Starting browser with args:", args);
 
@@ -69,11 +73,7 @@ export class HeadlessBrowser {
             console.log("Chrome launched with persistent context");
 
             // 等待一段时间让扩展加载
-            await new Promise((resolve) => setTimeout(resolve, 5000));
-
-            // Get the first page
-            const pages = context.pages();
-            this.page = pages[0] || (await context.newPage());
+            await new Promise((resolve) => setTimeout(resolve, 1000));
 
             // 获取并打印扩展信息
             const workers = context.serviceWorkers();
@@ -91,7 +91,42 @@ export class HeadlessBrowser {
         }
     }
 
-    async checkMetaMaskExtension() {
+    async bringPageToFront() {
+        if (!this.page) {
+            throw new Error("Page not initialized");
+        }
+        await this.page.bringToFront();
+    }
+
+    async activateExtensionPage() {
+        if (!this.context) {
+            throw new Error("Browser context not initialized");
+        }
+
+        // Get the first page
+        const pages = this.context.pages();
+        let page: Page | undefined = undefined;
+        if (pages.length > 0) {
+            page = pages.find((page) => page.url().includes(this.expectedExtensionUrlPrefix));
+        }
+        if (!page) {
+            page = await this.context.newPage();
+            await page.goto(this.expectedExtensionUrlPrefix);
+        }
+        this.page = page;
+        this.extensionPage = page;
+
+        console.log("Current page URL:", this.page.url());
+
+        await this.bringPageToFront();
+
+        // Input password
+        await this.page.getByTestId("unlock-password").fill(UNLOCK_PASSWORD);
+        // Click unlock button
+        await this.page.getByTestId("unlock-submit").click();
+    }
+
+    async ensureExtensionLoaded() {
         if (!this.context) {
             throw new Error("Browser context not initialized");
         }
@@ -108,15 +143,15 @@ export class HeadlessBrowser {
         }
 
         // Check if MetaMask background page exists
-        const extensionLoaded =
-            this.extensionWorker?.url().includes("chrome-extension://") &&
-            this.extensionWorker?.url().includes(this.extensionConfig.extensionId);
+        const extensionLoaded = this.extensionWorker
+            ?.url()
+            .includes(this.expectedExtensionUrlPrefix);
 
         if (!extensionLoaded) {
             throw new Error(`${this.extension} extension not found or not properly loaded`);
         }
 
-        console.log(`${this.extension} extension successfully loaded`);
+        this.activateExtensionPage();
     }
 
     async close() {
