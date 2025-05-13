@@ -41,15 +41,7 @@ export class KittyPunch {
         await notificationPage?.getByTestId("confirm-btn").click();
     }
 
-    async swapFlowToUsdf() {
-        await this.doSwap("FLOW", "USDF", "25%");
-    }
-
-    async swapUsdfToFlow() {
-        await this.doSwap("USDF", "FLOW", "Max");
-    }
-
-    private async doSwap(from: SupportedToken, to: SupportedToken, amountButtonText: string) {
+    async doSwap(from: SupportedToken, to: SupportedToken, amountButtonText: string) {
         const url = KittyPunch.getSwapUrl(from, to);
         await this.browser.setPageWithUrl(url);
 
@@ -74,14 +66,16 @@ export class KittyPunch {
 
         // Wait for the swap button to be enabled
         while (await swapBtn.isDisabled()) {
-            await page.waitForTimeout(200);
+            await page.waitForTimeout(100);
         }
 
         console.log("Swap button is enabled, clicking...");
 
         // Click on the swap button
         await swapBtn.click();
+    }
 
+    async doSignTransaction() {
         console.log(
             "Swapping, waiting for the notification page to be opened, timeout in 120 seconds...",
         );
@@ -96,13 +90,14 @@ export class KittyPunch {
         console.log("Notification page is opened, clicking confirm button...");
 
         await notificationPage?.getByTestId("confirm-footer-button").click();
+    }
 
-        // Wait a "p" div with text "Transaction completed" to be visible
+    async waitForTransactionCompleted() {
+        const page = this.browser.getCurrentPage();
         await page
             .locator("p")
             .filter({ hasText: /^Transaction completed$/ })
             .waitFor({ state: "visible" });
-
         console.log("Transaction completed");
     }
 }

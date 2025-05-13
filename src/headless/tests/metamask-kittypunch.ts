@@ -11,8 +11,14 @@ async function testMetaMask() {
         const kittypunch = new KittyPunch(browser);
         await kittypunch.openSwapFlowToUsdfUrl();
         await kittypunch.connectWallet();
-        await kittypunch.swapFlowToUsdf();
-        await kittypunch.swapUsdfToFlow();
+
+        await kittypunch.doSwap("FLOW", "USDF", "25%");
+        await kittypunch.doSignTransaction();
+        await kittypunch.waitForTransactionCompleted();
+
+        await kittypunch.doSwap("USDF", "FLOW", "Max");
+        await kittypunch.doSignTransaction();
+        await kittypunch.waitForTransactionCompleted();
 
         console.log("Test completed successfully!");
     } catch (error) {
