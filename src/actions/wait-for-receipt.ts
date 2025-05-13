@@ -1,6 +1,6 @@
 import { type WaitForTransactionReceiptReturnType, waitForTransactionReceipt } from "@wagmi/core";
 import { flowMainnet, flowTestnet } from "viem/chains";
-import type { EVMBlockchainContext } from "../types";
+import type { EVMBlockchainContext } from "../types/context";
 import { BaseAction, config, networkName } from "../utils";
 
 export class WaitForTransactionReceiptAction extends BaseAction<EVMBlockchainContext> {

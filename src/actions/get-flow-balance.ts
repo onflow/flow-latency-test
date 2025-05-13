@@ -1,6 +1,6 @@
 import { getBalance } from "@wagmi/core";
 import { flowMainnet, flowTestnet } from "viem/chains";
-import type { EVMBlockchainContext } from "../types";
+import type { EVMBlockchainContext } from "../types/index";
 import { BaseAction, config, networkName } from "../utils";
 
 export class GetBalanceAction extends BaseAction<EVMBlockchainContext> {
