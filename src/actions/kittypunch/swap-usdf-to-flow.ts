@@ -3,7 +3,7 @@ import { BaseAction } from "../../utils";
 
 export class SwapUsdfToFlow extends BaseAction<BrowserContext> {
     get name() {
-        return `${this.order ? `${this.order}_` : ""}SwapUsdfToFlow`;
+        return `${typeof this.order === "number" ? `${this.order}_` : ""}SwapUsdfToFlow`;
     }
     get awaitField() {
         return "kittypunch-swap-initialized";

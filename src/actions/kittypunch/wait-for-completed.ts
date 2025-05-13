@@ -3,7 +3,7 @@ import { BaseAction } from "../../utils";
 
 export class WaitForCompleted extends BaseAction<BrowserContext> {
     get name() {
-        return `${this.order ? `${this.order}_` : ""}WaitForCompleted`;
+        return `${typeof this.order === "number" ? `${this.order}_` : ""}WaitForCompleted`;
     }
     get awaitField() {
         return "transaction-signed";

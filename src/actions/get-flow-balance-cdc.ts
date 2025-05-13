@@ -12,7 +12,7 @@ export class GetCadenceBalanceAction extends BaseAction<CadenceBlockchainContext
     }
 
     get name() {
-        return `${this.order ? `${this.order}_` : ""}GetBalance_Await_${this._field}${this.awaitChange ? "->Change" : ""}`;
+        return `${typeof this.order === "number" ? `${this.order}_` : ""}GetBalance_Await_${this._field}${this.awaitChange ? "->Change" : ""}`;
     }
     get awaitField() {
         return this._field;

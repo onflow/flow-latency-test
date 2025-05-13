@@ -3,7 +3,7 @@ import { BaseAction } from "../../utils";
 
 export class DoSigningTransaction extends BaseAction<BrowserContext> {
     get name() {
-        return `${this.order ? `${this.order}_` : ""}DoSigningTransaction`;
+        return `${typeof this.order === "number" ? `${this.order}_` : ""}DoSigningTransaction`;
     }
     get awaitField() {
         return "swap-clicked";

@@ -5,7 +5,7 @@ import { BaseAction, config, networkName } from "../utils";
 
 export class WaitForTransactionReceiptAction extends BaseAction<EVMBlockchainContext> {
     get name() {
-        return `${this.order ? `${this.order}_` : ""}WaitForTransactionReceipt`;
+        return `${typeof this.order === "number" ? `${this.order}_` : ""}WaitForTransactionReceipt`;
     }
     get awaitField() {
         return "hash";
