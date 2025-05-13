@@ -30,6 +30,14 @@ jobs:
               with:
                 ref: main
 
+            - name: Install dependencies (curl, jq, unzip)
+              run: |
+                sudo apt-get update
+                sudo apt-get install -y curl jq unzip
+
+            - name: Download Extensions
+              run: ./scripts/download_extensions.sh
+
             - uses: oven-sh/setup-bun@v2
 
             - name: Install Dependencies
