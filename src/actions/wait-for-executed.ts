@@ -1,5 +1,5 @@
+import type { CadenceBlockchainContext } from "../types";
 import { BaseAction } from "../utils";
-import type { CadenceBlockchainContext } from "../utils/types";
 
 export class WaitForTransactionExecuted extends BaseAction<CadenceBlockchainContext> {
     get name() {

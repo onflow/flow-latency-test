@@ -1,7 +1,7 @@
 import { readContract } from "@wagmi/core";
 import { flowMainnet, flowTestnet } from "viem/chains";
+import type { EVMBlockchainContext } from "../types";
 import { BaseAction, config, networkName } from "../utils";
-import type { EVMBlockchainContext } from "../utils/types";
 
 export class GeERC20BalanceAction extends BaseAction<EVMBlockchainContext> {
     private _field: string;

@@ -1,6 +1,6 @@
 import cadenceCode from "../cadence/transactions/transfer_flow_to_cadence_or_evm.cdc?raw";
+import type { CadenceBlockchainContext } from "../types";
 import { BaseAction } from "../utils";
-import type { CadenceBlockchainContext } from "../utils/types";
 
 export class CadenceTransferAction extends BaseAction<CadenceBlockchainContext> {
     get name() {

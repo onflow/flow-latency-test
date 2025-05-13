@@ -69,7 +69,7 @@ export class HeadlessBrowser {
         try {
             const context = await chromium.launchPersistentContext(USER_DATA_DIR, {
                 channel: "chromium",
-                headless: false,
+                headless: true,
                 args,
                 ignoreDefaultArgs: ["--disable-extensions"],
             });

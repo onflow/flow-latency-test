@@ -1,16 +1,7 @@
-import { privateKeyToAccount } from "viem/accounts";
-import { networkName } from "./config";
-import { FlowConnector, FlowWallet, type NetworkType } from "./flow";
-import type {
-    CadenceBlockchainContext,
-    Context,
-    EVMBlockchainContext,
-    LatencyResult,
-} from "./types";
-
-import flowJSON from '../../flow.json' assert { type: "json" };
-
 export * from "./config";
+export * from "./context";
+
+import type { Context, LatencyResult } from "../types/index";
 
 export function logTimeWrapper(fn: (...args: unknown[]) => Promise<unknown>) {
     return async (...args: unknown[]) => {
@@ -132,23 +123,6 @@ export class Batch<T extends Context> {
             );
         }
     }
-}
-
-export async function buildEVMBlockchainContext(privKey: string) {
-    // Create a private key from the environment variable
-    const key = privKey.startsWith("0x") ? privKey.substring(2) : privKey;
-
-    const account = privateKeyToAccount(`0x${key}`);
-    console.log(`[Address: ${account.address} @${networkName}]`);
-
-    return { account, latencies: {} } as EVMBlockchainContext;
-}
-
-export async function buildCadenceBlockchainContext(useSoftFinality = false) {
-    const connecter = new FlowConnector(flowJSON, networkName as NetworkType, useSoftFinality);
-    const wallet = new FlowWallet(connecter)
-
-    return { wallet, latencies: {} } as CadenceBlockchainContext;
 }
 
 export function generateFlattenJson(results: LatencyResult[]) {
