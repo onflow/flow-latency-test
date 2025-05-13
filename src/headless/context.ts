@@ -13,7 +13,7 @@ export async function buildHeadlessBrowerContextWithMetamask() {
         throw error;
     }
 
-    return { browser, websites: {} } as BrowserContext;
+    return { browser, websites: {}, latencies: {} } as BrowserContext;
 }
 
 export async function enableKittypunch(ctx: BrowserContext) {
