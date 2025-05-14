@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import minimist from "minimist";
 import type { LatencyData, ParsedLatency } from "./types/outputs";
 import { generateFlattenJson } from "./utils";
 
@@ -93,19 +94,60 @@ function parseLatencyLine(line: string, index: number): ParsedLatency | null {
     };
 }
 
+// Filter runners by run-types
+function filterRunnersByRunTypes(runTypes: string[] | null) {
+    if (!runTypes || runTypes.length === 0) return runners;
+    return runners.filter((runner) => {
+        // Filter by network
+        if (runTypes.includes("testnet") && runner.network === "testnet") return true;
+        if (runTypes.includes("mainnet") && runner.network === "mainnet") return true;
+        // Filter by providerKey
+        if (runTypes.includes("default") && !runner.providerKey) return true;
+        if (runTypes.includes("alchemy") && runner.providerKey === "ALCHEMY_URL") return true;
+        if (runTypes.includes("quicknode") && runner.providerKey === "QUICKNODE_URL") return true;
+        // Filter for headless-kittypunch
+        if (
+            runTypes.includes("headless-kittypunch") &&
+            runner.tasks?.some((task) => task.startsWith("headless-kittypunch"))
+        )
+            return true;
+        return false;
+    });
+}
+
 async function main() {
+    // Use minimist to parse CLI arguments
+    const argv = minimist(process.argv.slice(2));
+    let runTypes: string[] | null = null;
+    if (argv["run-types"]) {
+        if (Array.isArray(argv["run-types"])) {
+            // Support comma-separated and repeated --run-types
+            runTypes = argv["run-types"].flatMap((v: string) =>
+                v
+                    .split(",")
+                    .map((s) => s.trim())
+                    .filter(Boolean),
+            );
+        } else {
+            // Support comma-separated values
+            runTypes = String(argv["run-types"])
+                .split(",")
+                .map((s) => s.trim())
+                .filter(Boolean);
+        }
+    }
+    const filteredRunners = filterRunnersByRunTypes(runTypes);
+
     const results: LatencyData[] = [];
 
-    for (const runner of runners) {
+    for (const runner of filteredRunners) {
         // TODO: This should not be how env vars are used, we should consider
         // using a config file or some other method to manage these provider URLs
 
         // Set environment variables based on provider key
         if (runner.providerKey) {
-            process.env.EVM_MAINNET_RPC_ENDPOINT_URL =
-                process.env[`MAINNET_${runner.providerKey}`];
-            process.env.EVM_TESTNET_RPC_ENDPOINT_URL =
-                process.env[`TESTNET_${runner.providerKey}`];
+            process.env.EVM_MAINNET_RPC_ENDPOINT_URL = process.env[`MAINNET_${runner.providerKey}`];
+            process.env.EVM_TESTNET_RPC_ENDPOINT_URL = process.env[`TESTNET_${runner.providerKey}`];
         } else {
             // If no provider key, we have to delete the variables to ensure proper
             // selection of the default provider
@@ -177,11 +219,7 @@ async function main() {
 
     // Get all unique latency names in a consistent order
     const allNames = Array.from(
-        new Set(
-            parsedResults.flatMap((result) =>
-                result.latencies.map((latency) => latency.name),
-            ),
-        ),
+        new Set(parsedResults.flatMap((result) => result.latencies.map((latency) => latency.name))),
     ).sort();
 
     // Generate CSV
@@ -251,8 +289,8 @@ async function main() {
         ),
     }));
 
-    // Add the formatted results to the existing results
     if (formattedResults.length === 0) {
+        // Add the formatted results to the existing results
         console.log("No results to merge");
         return;
     }
@@ -270,7 +308,7 @@ async function main() {
     console.log(`Results have been merged into ${existingResultsPath}`);
 
     // Export flattened output json file
-    const flattenedOutputPath = path.join(outputsDir, 'flattened_output.json');
+    const flattenedOutputPath = path.join(outputsDir, "flattened_output.json");
 
     // Load and process the latency results
     const flattenedResults = generateFlattenJson(existingResults.results);
