@@ -31,6 +31,7 @@ export class HeadlessBrowser {
     private context: BrowserContext | undefined = undefined;
     private extensionWorker: Worker | undefined = undefined;
     private extensionPage: Page | undefined = undefined;
+    private cachedExtensionId: string | undefined = undefined;
 
     constructor(private readonly extension: ExtensionType) {
         if (!extensionTypes.includes(extension)) {
@@ -45,16 +46,20 @@ export class HeadlessBrowser {
         return extensionPaths[this.extension];
     }
 
+    get extensionId() {
+        return this.cachedExtensionId ?? this.extensionConfig.extensionId;
+    }
+
     get expectedExtensionUrlPrefix() {
-        return `chrome-extension://${this.extensionConfig.extensionId}`;
+        return `chrome-extension://${this.extensionId}`;
     }
 
     get expectedExtensionHomeUrl() {
-        return `chrome-extension://${this.extensionConfig.extensionId}/home.html`;
+        return `chrome-extension://${this.extensionId}/home.html`;
     }
 
     get expectedExtensionNotificationUrl() {
-        return `chrome-extension://${this.extensionConfig.extensionId}/notification.html`;
+        return `chrome-extension://${this.extensionId}/notification.html`;
     }
 
     async initialize() {
@@ -70,7 +75,7 @@ export class HeadlessBrowser {
         try {
             const context = await chromium.launchPersistentContext(USER_DATA_DIR, {
                 channel: "chromium",
-                headless: true,
+                headless: false,
                 args,
                 ignoreDefaultArgs: ["--disable-extensions"],
             });
@@ -89,7 +94,9 @@ export class HeadlessBrowser {
             } else {
                 this.extensionWorker = workers[0];
             }
-            console.log("Extension worker loaded, URL:", this.extensionWorker?.url());
+            const url = this.extensionWorker?.url();
+            console.log("Extension worker loaded, URL:", url);
+            this.cachedExtensionId = url?.split("/")[2];
 
             console.log("Browser initialized successfully");
         } catch (error) {
