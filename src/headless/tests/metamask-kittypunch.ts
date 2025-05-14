@@ -6,14 +6,14 @@ async function testMetaMask() {
     try {
         await browser.initialize();
         await browser.ensureExtensionLoaded();
-        await browser.activateExtension();
+        await browser.activateMetamask();
         await browser.switchToFlowMainnet();
 
         const kittypunch = new KittyPunch(browser);
         await kittypunch.openSwapFlowToUsdfUrl();
         await kittypunch.connectWallet();
 
-        await kittypunch.doSwap("FLOW", "USDF", "25%");
+        await kittypunch.doSwap("FLOW", "USDF", "50%");
         await kittypunch.doSignTransaction();
         await kittypunch.waitForTransactionCompleted();
 

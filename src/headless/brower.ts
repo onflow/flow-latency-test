@@ -123,7 +123,7 @@ export class HeadlessBrowser {
         }
     }
 
-    async activateExtensionHomePage(reload = false) {
+    async activateMetamaskHomePage(reload = false) {
         if (!this.context) {
             throw new Error("Browser context not initialized");
         }
@@ -148,8 +148,8 @@ export class HeadlessBrowser {
         await this.bringPageToFront();
     }
 
-    async activateExtension(reload = false) {
-        await this.activateExtensionHomePage(reload);
+    async activateMetamask(reload = false) {
+        await this.activateMetamaskHomePage(reload);
 
         if (this.extensionPage === undefined) {
             throw new Error("Extension page not initialized");
@@ -232,7 +232,7 @@ export class HeadlessBrowser {
     }
 
     async switchToFlowMainnet() {
-        await this.activateExtensionHomePage();
+        await this.activateMetamaskHomePage();
 
         if (this.context === undefined) {
             throw new Error("Browser context not initialized");

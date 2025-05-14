@@ -8,7 +8,7 @@ export async function buildHeadlessBrowerContextWithMetamask() {
     try {
         await browser.initialize();
         await browser.ensureExtensionLoaded();
-        await browser.activateExtension();
+        await browser.activateMetamask();
         await browser.switchToFlowMainnet();
     } catch (error) {
         console.error("Error initializing browser:", error);

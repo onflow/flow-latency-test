@@ -18,7 +18,7 @@ export class SwapFlowToUsdf extends BaseAction<BrowserContext> {
             throw new Error("Kittypunch website not found");
         }
 
-        await websites.kittypunch.doSwap("FLOW", "USDF", "25%");
+        await websites.kittypunch.doSwap("FLOW", "USDF", "50%");
         return true;
     }
 }

@@ -77,19 +77,37 @@ export class KittyPunch {
 
     async doSignTransaction() {
         console.log(
-            "Swapping, waiting for the notification page to be opened, timeout in 120 seconds...",
+            "Swapping, waiting for the notification page to be opened, timeout in 60 seconds...",
         );
 
         // Wait for the notification page to be opened
         const context = this.browser.getContext();
-        await context.waitForEvent("page", { timeout: 120000 });
+        await context.waitForEvent("page", { timeout: 60000 });
 
         const notificationPage = this.browser.findPageByUrl(
             this.browser.expectedExtensionNotificationUrl,
         );
-        console.log("Notification page is opened, clicking confirm button...");
 
-        await notificationPage?.getByTestId("confirm-footer-button").click();
+        if (notificationPage) {
+            console.log("Notification page is opened, clicking confirm button...");
+            await notificationPage.getByTestId("confirm-footer-button").click();
+        }
+    }
+
+    async inTransactionCheck() {
+        const page = this.browser.getCurrentPage();
+        if (
+            (await page
+                .locator("button")
+                .filter({ hasText: /^Close$/ })
+                .isVisible()) &&
+            (await page
+                .locator("p")
+                .filter({ hasText: "reverted with the following reason" })
+                .isVisible())
+        ) {
+            throw new Error("Transaction reverted");
+        }
     }
 
     async waitForTransactionCompleted() {
@@ -97,7 +115,7 @@ export class KittyPunch {
         await page
             .locator("p")
             .filter({ hasText: /^Transaction completed$/ })
-            .waitFor({ state: "visible" });
+            .waitFor({ state: "visible", timeout: 60000 });
         console.log("Transaction completed");
     }
 }
