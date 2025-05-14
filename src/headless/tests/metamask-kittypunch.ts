@@ -13,7 +13,7 @@ async function testMetaMask() {
         await kittypunch.openSwapFlowToUsdfUrl();
         await kittypunch.connectWallet();
 
-        await kittypunch.doSwap("FLOW", "USDF", "50%");
+        await kittypunch.doSwap("FLOW", "USDF", "25%");
         await kittypunch.doSignTransaction();
         await kittypunch.waitForTransactionCompleted();
 
