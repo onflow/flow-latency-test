@@ -19,6 +19,9 @@ export class DoSigningTransaction extends BaseAction<BrowserContext> {
         }
 
         await websites.kittypunch.doSignTransaction();
+        if (await websites.kittypunch.isApprovingTokens()) {
+            await websites.kittypunch.doSignTransaction();
+        }
         return true;
     }
 }

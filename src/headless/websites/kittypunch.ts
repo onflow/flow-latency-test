@@ -110,6 +110,11 @@ export class KittyPunch {
         }
     }
 
+    async isApprovingTokens() {
+        const page = this.browser.getCurrentPage();
+        return await page.locator("p").filter({ hasText: "Approving" }).isVisible();
+    }
+
     async waitForTransactionCompleted() {
         const page = this.browser.getCurrentPage();
         await page

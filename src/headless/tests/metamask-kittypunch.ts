@@ -19,6 +19,9 @@ async function testMetaMask() {
 
         await kittypunch.doSwap("USDF", "FLOW", "Max");
         await kittypunch.doSignTransaction();
+        if (await kittypunch.isApprovingTokens()) {
+            await kittypunch.doSignTransaction();
+        }
         await kittypunch.waitForTransactionCompleted();
 
         console.log("Test completed successfully!");
