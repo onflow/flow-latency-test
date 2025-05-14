@@ -64,7 +64,7 @@ jobs:
 
             #  If run_types is empty, run all runners
             - name: Run the output generation
-              run: bun start --run-types ${inputs.run_types}
+              run: bun start --run-types ${{inputs.run_types}}
 
             # 这里需要判断 outputs 下是否有 git 监控中的文件更新，如果有则设置 is_updated 为 true
             - name: Check if there are any updates
