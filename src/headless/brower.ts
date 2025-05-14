@@ -13,6 +13,7 @@ const EXTENSION_FOLDER_PATH = path.join(__dirname, "../../extensions");
 const USER_DATA_DIR = path.join(__dirname, "../../user-data");
 
 const UNLOCK_PASSWORD = process.env.CHROME_METAMASK_PASSWORD || "123456";
+const MNEMONIC = process.env.CHROME_METAMASK_MNEMONIC;
 
 const extensionPaths: Record<ExtensionType, ExtensionConfig> = {
     metamask: {
@@ -69,7 +70,7 @@ export class HeadlessBrowser {
         try {
             const context = await chromium.launchPersistentContext(USER_DATA_DIR, {
                 channel: "chromium",
-                headless: true,
+                headless: false,
                 args,
                 ignoreDefaultArgs: ["--disable-extensions"],
             });
@@ -97,41 +98,6 @@ export class HeadlessBrowser {
         }
     }
 
-    async bringPageToFront() {
-        if (!this.page) {
-            throw new Error("Page not initialized");
-        }
-        await this.page.bringToFront();
-    }
-
-    async activateExtensionPage() {
-        if (!this.context) {
-            throw new Error("Browser context not initialized");
-        }
-
-        // Get the first page
-        const pages = this.context.pages();
-        let page: Page | undefined = undefined;
-        if (pages.length > 0) {
-            page = pages.find((page) => page.url().includes(this.expectedExtensionUrlPrefix));
-        }
-        if (!page) {
-            page = await this.context.newPage();
-            await page.goto(this.expectedExtensionUrlPrefix);
-        }
-        this.extensionPage = page;
-        this.page = page;
-
-        console.log("Extension page URL:", this.extensionPage.url());
-
-        await this.bringPageToFront();
-
-        // Input password
-        await this.extensionPage.getByTestId("unlock-password").fill(UNLOCK_PASSWORD);
-        // Click unlock button
-        await this.extensionPage.getByTestId("unlock-submit").click();
-    }
-
     async ensureExtensionLoaded() {
         if (!this.context) {
             throw new Error("Browser context not initialized");
@@ -155,8 +121,149 @@ export class HeadlessBrowser {
         if (!extensionLoaded) {
             throw new Error(`${this.extension} extension not found or not properly loaded`);
         }
+    }
 
-        await this.activateExtensionPage();
+    async activateExtensionHomePage(reload = false) {
+        if (!this.context) {
+            throw new Error("Browser context not initialized");
+        }
+
+        // Get the first page
+        const pages = this.context.pages();
+        let page: Page | undefined = undefined;
+        if (pages.length > 0) {
+            page = pages.find((page) => page.url().includes(this.expectedExtensionUrlPrefix));
+        }
+        if (!page) {
+            page = await this.context.newPage();
+        }
+        if (reload || !page.url().includes(this.expectedExtensionUrlPrefix)) {
+            await page.goto(this.expectedExtensionHomeUrl);
+        }
+        this.extensionPage = page;
+        this.page = page;
+
+        console.log("Extension page URL:", this.extensionPage.url());
+        await this.extensionPage.waitForLoadState("domcontentloaded");
+        await this.bringPageToFront();
+    }
+
+    async activateExtension(reload = false) {
+        await this.activateExtensionHomePage(reload);
+
+        if (this.extensionPage === undefined) {
+            throw new Error("Extension page not initialized");
+        }
+
+        // wait for 1 second
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        const unlockPassword = this.extensionPage.getByTestId("unlock-password");
+        if (await unlockPassword.isVisible()) {
+            // Input password
+            await unlockPassword.fill(UNLOCK_PASSWORD);
+            // Click unlock button
+            await this.extensionPage.getByTestId("unlock-submit").click();
+        } else {
+            await this.extensionPage.getByTestId("onboarding-terms-checkbox").click();
+
+            const importWalletButton = this.extensionPage.getByTestId("onboarding-import-wallet");
+            await importWalletButton.waitFor({ state: "visible" });
+            if (await importWalletButton.isEnabled()) {
+                await importWalletButton.click();
+            } else {
+                throw new Error("Import wallet button not found");
+            }
+
+            const noThanksButton = this.extensionPage.getByTestId("metametrics-no-thanks");
+            if (await noThanksButton.isVisible()) {
+                await noThanksButton.click();
+            }
+
+            const mnemonicWords = MNEMONIC?.split(" ") ?? [];
+            if (mnemonicWords.length !== 12) {
+                throw new Error("Invalid mnemonic");
+            }
+
+            for (let i = 0; i < 12; i++) {
+                if (typeof mnemonicWords[i] === "string") {
+                    const word: string = mnemonicWords[i] as string;
+                    await this.extensionPage.getByTestId(`import-srp__srp-word-${i}`).fill(word);
+                } else throw new Error("Invalid mnemonic word");
+            }
+
+            await this.extensionPage.getByTestId("import-srp-confirm").click();
+
+            // To create password
+            const createPassworText = this.extensionPage.getByTestId("create-password-new");
+            await createPassworText.waitFor({ state: "visible" });
+            await createPassworText.fill(UNLOCK_PASSWORD);
+            await this.extensionPage.getByTestId("create-password-confirm").fill(UNLOCK_PASSWORD);
+
+            // accept terms
+            const createPasswordTerms = this.extensionPage.getByTestId("create-password-terms");
+            if (await createPasswordTerms.isVisible()) {
+                await createPasswordTerms.click();
+            }
+            // click input
+            const createPasswordButton = this.extensionPage.getByTestId("create-password-import");
+            await createPasswordButton.waitFor({ state: "visible" });
+            if (await createPasswordButton.isEnabled()) {
+                await createPasswordButton.click();
+            }
+
+            // done
+            const doneButton = this.extensionPage.getByTestId("onboarding-complete-done");
+            await doneButton.waitFor({ state: "visible" });
+            if (await doneButton.isEnabled()) {
+                await doneButton.click();
+            }
+
+            const next1Btn = this.extensionPage.getByTestId("pin-extension-next");
+            if (await next1Btn.isVisible()) {
+                await next1Btn.click();
+            }
+
+            const next2Btn = this.extensionPage.getByTestId("pin-extension-done");
+            if (await next2Btn.isVisible()) {
+                await next2Btn.click();
+            }
+        }
+    }
+
+    async switchToFlowMainnet() {
+        await this.activateExtensionHomePage();
+
+        if (this.context === undefined) {
+            throw new Error("Browser context not initialized");
+        }
+        if (this.extensionPage === undefined) {
+            throw new Error("Extension page not initialized");
+        }
+
+        const networkButton = this.extensionPage.getByTestId("network-display");
+        // get the text of the network button
+        const networkText = await networkButton.locator("p").textContent();
+        if (networkText?.includes("Flow EVM")) {
+            return;
+        }
+
+        // goto flow doc to add
+        const page = await this.context.newPage();
+        await page.goto("https://developers.flow.com/evm/using");
+
+        await page.waitForLoadState("domcontentloaded");
+
+        const networkItem = page.getByText("Add Flow EVM Network");
+        await networkItem.click();
+
+        // wait for notification page to be opened
+        await this.context.waitForEvent("page", { timeout: 12000 });
+
+        const notificationPage = this.findPageByUrl(this.expectedExtensionNotificationUrl);
+        await notificationPage?.getByTestId("confirmation-submit-button").click();
+
+        await page.close();
     }
 
     async close() {
@@ -166,6 +273,13 @@ export class HeadlessBrowser {
             this.page = undefined;
             this.extensionWorker = undefined;
         }
+    }
+
+    async bringPageToFront() {
+        if (!this.page) {
+            throw new Error("Page not initialized");
+        }
+        await this.page.bringToFront();
     }
 
     async openNewPageWithUrl(url: string) {

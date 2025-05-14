@@ -43,6 +43,9 @@ jobs:
             - name: Install Dependencies
               run: bun install
 
+            - name: Install Playwright Chrome
+              run: npx playwright install chromium
+
             - name: Run the output generation
               run: bun start
 

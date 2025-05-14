@@ -5,8 +5,9 @@ async function testMetaMask() {
     const browser = new HeadlessBrowser("metamask");
     try {
         await browser.initialize();
-
         await browser.ensureExtensionLoaded();
+        await browser.activateExtension();
+        await browser.switchToFlowMainnet();
 
         const kittypunch = new KittyPunch(browser);
         await kittypunch.openSwapFlowToUsdfUrl();
