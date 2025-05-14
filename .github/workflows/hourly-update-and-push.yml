@@ -24,11 +24,14 @@ jobs:
             MAINNET_ALCHEMY_URL: ${{ secrets.MAINNET_ALCHEMY_URL }}
             TESTNET_QUICKNODE_URL: ${{ secrets.TESTNET_QUICKNODE_URL }}
             MAINNET_QUICKNODE_URL: ${{ secrets.MAINNET_QUICKNODE_URL }}
+            CHROME_METAMASK_PASSWORD: ${{ secrets.CHROME_METAMASK_PASSWORD }}
+            CHROME_METAMASK_MNEMONIC: ${{ secrets.CHROME_METAMASK_MNEMONIC }}
 
         steps:
+            # checkout current branch
             - uses: actions/checkout@v4
               with:
-                ref: main
+                ref: ${{ github.ref }}
 
             - name: Install dependencies (curl, jq, unzip)
               run: |
@@ -49,7 +52,20 @@ jobs:
             - name: Run the output generation
               run: bun start
 
+            # 这里需要判断 outputs 下是否有 git 监控中的文件更新，如果有则设置 is_updated 为 true
+            - name: Check if there are any updates
+              id: check_updates
+              run: |
+                if git diff --name-only HEAD~1 HEAD | grep -q "outputs/" || git status --porcelain | grep -q "outputs/"; then
+                  echo "Outputs directory has changed"
+                  echo "is_updated=true" >> $GITHUB_OUTPUT
+                else
+                  echo "Outputs directory has not changed"
+                  echo "is_updated=false" >> $GITHUB_OUTPUT
+                fi
+
             - name: Commit all updates
+              if: ${{ steps.check_updates.outputs.is_updated == 'true' }}
               uses: stefanzweifel/git-auto-commit-action@v5
               with:
                 commit_message: "chore: update latency results."
