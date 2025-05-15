@@ -16,6 +16,7 @@ export async function buildHeadlessBrowerContextWithMetamask() {
         await browser.switchToFlowMainnet();
         console.log("Browser initialized successfully");
     } catch (error) {
+        await browser.close();
         console.error("Error initializing browser:", error);
         throw error;
     }

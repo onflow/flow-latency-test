@@ -20,12 +20,12 @@ async function sentTestTransaction() {
     await batch.run();
 
     batch.printLatencies();
-
-    process.exit(0);
 }
 // Run the main function
 try {
     await sentTestTransaction();
 } catch (error) {
     console.error("Error sending transaction:", error);
+} finally {
+    process.exit(0);
 }

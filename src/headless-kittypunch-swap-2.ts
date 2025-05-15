@@ -22,12 +22,13 @@ async function start() {
     await batch.run();
 
     batch.printLatencies();
-
-    process.exit(0);
 }
+
 // Run the main function
 try {
     await start();
 } catch (error) {
     console.error("Error:", error);
+} finally {
+    process.exit(0);
 }
