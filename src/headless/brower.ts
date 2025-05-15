@@ -128,6 +128,9 @@ export class HeadlessBrowser {
         if (!extensionLoaded) {
             throw new Error(`${this.extension} extension not found or not properly loaded`);
         }
+
+        // wait for 1 second
+        await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
     async activateMetamaskHomePage(reload = false) {
@@ -142,6 +145,7 @@ export class HeadlessBrowser {
             page = pages.find((page) => page.url().includes(this.expectedExtensionUrlPrefix));
         }
         if (!page) {
+            console.log("No page found, creating new page");
             page = await this.context.newPage();
         }
         if (reload || !page.url().includes(this.expectedExtensionUrlPrefix)) {
@@ -252,8 +256,11 @@ export class HeadlessBrowser {
         // get the text of the network button
         const networkText = await networkButton.locator("p").textContent();
         if (networkText?.includes("Flow EVM")) {
+            console.log("Already on Flow Mainnet");
             return;
         }
+
+        console.log("Switching to Flow Mainnet");
 
         // goto flow doc to add
         const page = await this.context.newPage();
@@ -265,7 +272,7 @@ export class HeadlessBrowser {
         await networkItem.click();
 
         // wait for notification page to be opened
-        await this.context.waitForEvent("page", { timeout: 12000 });
+        await this.context.waitForEvent("page", { timeout: 60000 });
 
         const notificationPage = this.findPageByUrl(this.expectedExtensionNotificationUrl);
         await notificationPage?.getByTestId("confirmation-submit-button").click();
