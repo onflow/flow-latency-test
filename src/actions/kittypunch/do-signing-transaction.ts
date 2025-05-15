@@ -13,14 +13,14 @@ export class DoSigningTransaction extends BaseAction<BrowserContext> {
     }
 
     async fn(ctx: BrowserContext) {
-        const { websites } = ctx;
+        const { websites, browser } = ctx;
         if (!websites.kittypunch) {
             throw new Error("Kittypunch website not found");
         }
 
         await websites.kittypunch.doSignTransaction();
         if (await websites.kittypunch.isApprovingTokens()) {
-            await websites.kittypunch.doSignTransaction();
+            await browser.waitForNotificationPageAndClickConfirm();
         }
         return true;
     }

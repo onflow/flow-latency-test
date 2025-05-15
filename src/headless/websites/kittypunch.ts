@@ -32,11 +32,7 @@ export class KittyPunch {
         await page.getByTestId("rk-wallet-option-io.metamask").click();
 
         // wait for notification page to be opened
-        const notificationPage = await this.browser.waitForNotificationPage();
-        if (!notificationPage) {
-            throw new Error("Notification page not found");
-        }
-        await notificationPage.getByTestId("confirm-btn").click();
+        await this.browser.waitForNotificationPageAndClickConfirm();
     }
 
     async doSwap(from: SupportedToken, to: SupportedToken, amountButtonText: string) {
@@ -84,11 +80,7 @@ export class KittyPunch {
         );
 
         // Wait for the notification page to be opened
-        const notificationPage = await this.browser.waitForNotificationPage();
-        if (notificationPage) {
-            console.log("Notification page is opened, clicking confirm button...");
-            await notificationPage.getByTestId("confirm-footer-button").click();
-        }
+        await this.browser.waitForNotificationPageAndClickConfirm();
     }
 
     async inTransactionCheck() {

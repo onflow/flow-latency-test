@@ -277,46 +277,69 @@ export class HeadlessBrowser {
         console.log("Clicked, waiting for notification page to be opened");
 
         // wait for notification page to be opened
-        const notificationPage = await this.waitForNotificationPage();
-        if (!notificationPage) {
-            throw new Error("Notification page not found");
-        }
-        await notificationPage.getByTestId("confirmation-submit-button").click();
+        await this.waitForNotificationPageAndClickConfirm();
 
-        console.log("Notification page closed, closing page");
+        console.log("Notification page confirmed, closing page");
 
         await page.close();
     }
 
-    async waitForNotificationPage() {
+    async waitForNotificationPageAndClickConfirm() {
         if (!this.context) {
             throw new Error("Browser context not initialized");
         }
 
         const timeout = 60000;
-        const timeToOpenNotificationPage = 5000;
+        const timeToOpenNotificationPage = 15000;
         const startTime = Date.now();
+        let page: Page | undefined = undefined;
         while (true) {
             const notificationPage = this.findPageByUrl(this.expectedExtensionNotificationUrl);
             if (notificationPage) {
-                return notificationPage;
+                page = notificationPage;
+                break;
             }
             const timeElapsed = Date.now() - startTime;
             if (timeElapsed > timeout) {
-                console.log(
-                    "Timeout, existing pages:",
-                    this.context.pages().map((page) => page.url()),
-                );
-                return undefined;
+                break;
             }
             if (timeElapsed > timeToOpenNotificationPage) {
                 console.log("No notification page found, forcing to open");
-                const page = await this.context.newPage();
+                page = await this.context.newPage();
                 await page.goto(this.expectedExtensionNotificationUrl);
-                return page;
+                break;
             }
             await new Promise((resolve) => setTimeout(resolve, 200));
         }
+
+        if (!page) {
+            console.log(
+                "Timeout, existing pages:",
+                this.context.pages().map((page) => page.url()),
+            );
+            throw new Error("Notification page not found");
+        }
+        await page.waitForLoadState("domcontentloaded");
+        await page.waitForTimeout(1000);
+        const btn1 = page.getByTestId("confirmation-submit-button");
+        const btn2 = page.getByTestId("confirm-btn");
+        const btn3 = page.getByTestId("confirm-footer-button");
+
+        // Wait until one of these three button visible and click it
+        await Promise.race([
+            btn1.waitFor({ state: "visible" }).then(() => btn1.click()),
+            btn2.waitFor({ state: "visible" }).then(() => btn2.click()),
+            btn3.waitFor({ state: "visible" }).then(() => btn3.click()),
+        ]);
+
+        // ensure the page is closed
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        if (!page.isClosed()) {
+            await page.close();
+        }
+
+        console.log("Confirmed in notification page, and closed it.");
     }
 
     async close() {
