@@ -260,22 +260,29 @@ export class HeadlessBrowser {
             return;
         }
 
-        console.log("Switching to Flow Mainnet");
+        console.log("Go to flow doc to add network");
 
         // goto flow doc to add
         const page = await this.context.newPage();
         await page.goto("https://developers.flow.com/evm/using");
-
         await page.waitForLoadState("domcontentloaded");
 
+        console.log("Page loaded, waiting for network item to be visible");
+
         const networkItem = page.getByText("Add Flow EVM Network");
+        await networkItem.waitFor({ state: "visible" });
+        console.log("Network item visible, clicking");
         await networkItem.click();
+
+        console.log("Clicked, waiting for notification page to be opened");
 
         // wait for notification page to be opened
         await this.context.waitForEvent("page", { timeout: 60000 });
 
         const notificationPage = this.findPageByUrl(this.expectedExtensionNotificationUrl);
         await notificationPage?.getByTestId("confirmation-submit-button").click();
+
+        console.log("Notification page closed, closing page");
 
         await page.close();
     }
