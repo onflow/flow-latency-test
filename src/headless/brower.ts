@@ -290,7 +290,7 @@ export class HeadlessBrowser {
         }
 
         const timeout = 60000;
-        const timeToOpenNotificationPage = 15000;
+        const timeToOpenNotificationPage = 10000;
         const startTime = Date.now();
         let page: Page | undefined = undefined;
         while (true) {
