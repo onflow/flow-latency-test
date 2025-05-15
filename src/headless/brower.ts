@@ -294,18 +294,26 @@ export class HeadlessBrowser {
         }
 
         const timeout = 60000;
+        const timeToOpenNotificationPage = 10000;
         const startTime = Date.now();
         while (true) {
             const notificationPage = this.findPageByUrl(this.expectedExtensionNotificationUrl);
             if (notificationPage) {
                 return notificationPage;
             }
-            if (Date.now() - startTime > timeout) {
+            const timeElapsed = Date.now() - startTime;
+            if (timeElapsed > timeout) {
                 console.log(
                     "Timeout, existing pages:",
                     this.context.pages().map((page) => page.url()),
                 );
                 return undefined;
+            }
+            if (timeElapsed > timeToOpenNotificationPage) {
+                console.log("No notification page found, forcing to open");
+                const page = await this.context.newPage();
+                await page.goto(this.expectedExtensionNotificationUrl);
+                return page;
             }
             await new Promise((resolve) => setTimeout(resolve, 200));
         }
