@@ -66,20 +66,7 @@ jobs:
             - name: Run the output generation
               run: bun start --run-types ${{inputs.run_types}}
 
-            # 这里需要判断 outputs 下是否有 git 监控中的文件更新，如果有则设置 is_updated 为 true
-            - name: Check if there are any updates
-              id: check_updates
-              run: |
-                if git diff --name-only HEAD~1 HEAD | grep -q "outputs/" || git status --porcelain | grep -q "outputs/"; then
-                  echo "Outputs directory has changed"
-                  echo "is_updated=true" >> $GITHUB_OUTPUT
-                else
-                  echo "Outputs directory has not changed"
-                  echo "is_updated=false" >> $GITHUB_OUTPUT
-                fi
-
             - name: Commit all updates
-              if: ${{ steps.check_updates.outputs.is_updated == 'true' }}
               uses: stefanzweifel/git-auto-commit-action@v5
               with:
                 commit_message: "chore: update latency results."
