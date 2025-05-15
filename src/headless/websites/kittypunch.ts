@@ -60,10 +60,15 @@ export class KittyPunch {
         console.log("Waiting for the swap button to be enabled...");
 
         // Wait for the swap button to be visible
-        await swapBtn.waitFor({ state: "visible" });
+        await swapBtn.waitFor({ state: "visible", timeout: 10000 });
 
         // Wait for the swap button to be enabled
+        const timeout = 60000;
+        const startTime = Date.now();
         while (await swapBtn.isDisabled()) {
+            if (Date.now() - startTime > timeout) {
+                throw new Error("Swap button is not enabled");
+            }
             await page.waitForTimeout(100);
         }
 

@@ -14,9 +14,9 @@ async function start() {
 
     const batch = new Batch(ctx, [
         new InitKittypunchSwap(0),
-        new SwapFlowToUsdf(1),
-        new DoSigningTransaction(2),
-        new WaitForCompleted(3),
+        new SwapFlowToUsdf(1, 120000),
+        new DoSigningTransaction(2, 300000),
+        new WaitForCompleted(3, 300000),
     ]);
 
     await batch.run();

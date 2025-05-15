@@ -294,7 +294,7 @@ export class HeadlessBrowser {
         }
 
         const timeout = 60000;
-        const timeToOpenNotificationPage = 10000;
+        const timeToOpenNotificationPage = 5000;
         const startTime = Date.now();
         while (true) {
             const notificationPage = this.findPageByUrl(this.expectedExtensionNotificationUrl);

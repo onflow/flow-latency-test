@@ -18,7 +18,10 @@ export interface Action<T extends Context> {
 }
 
 export abstract class BaseAction<T extends Context> implements Action<T> {
-    constructor(protected readonly order?: number) {}
+    constructor(
+        protected readonly order?: number,
+        protected readonly maxTimeout: number = 60000,
+    ) {}
 
     abstract get name(): string;
     abstract get awaitField(): string | undefined;
@@ -38,7 +41,7 @@ export abstract class BaseAction<T extends Context> implements Action<T> {
         const record = { waiting: 0, completed: 0 };
 
         const delta = 50;
-        const maxTimeout = 60000;
+        const maxTimeout = this.maxTimeout;
         let isTimeout = false;
         // Wait for the awaitField to be non-undefined
         if (this.awaitField) {
