@@ -277,14 +277,34 @@ export class HeadlessBrowser {
         console.log("Clicked, waiting for notification page to be opened");
 
         // wait for notification page to be opened
-        await this.context.waitForEvent("page", { timeout: 60000 });
-
-        const notificationPage = this.findPageByUrl(this.expectedExtensionNotificationUrl);
-        await notificationPage?.getByTestId("confirmation-submit-button").click();
+        const notificationPage = await this.waitForNotificationPage();
+        if (!notificationPage) {
+            throw new Error("Notification page not found");
+        }
+        await notificationPage.getByTestId("confirmation-submit-button").click();
 
         console.log("Notification page closed, closing page");
 
         await page.close();
+    }
+
+    async waitForNotificationPage() {
+        if (!this.context) {
+            throw new Error("Browser context not initialized");
+        }
+
+        const timeout = 60000;
+        const startTime = Date.now();
+        while (true) {
+            const notificationPage = this.findPageByUrl(this.expectedExtensionNotificationUrl);
+            if (notificationPage) {
+                return notificationPage;
+            }
+            if (Date.now() - startTime > timeout) {
+                return undefined;
+            }
+            await new Promise((resolve) => setTimeout(resolve, 200));
+        }
     }
 
     async close() {
