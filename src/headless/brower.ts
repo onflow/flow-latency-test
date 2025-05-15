@@ -290,7 +290,7 @@ export class HeadlessBrowser {
         }
 
         const timeout = 60000;
-        const timeToOpenNotificationPage = 10000;
+        const timeToOpenNotificationPage = 15000;
         const startTime = Date.now();
         let page: Page | undefined = undefined;
         while (true) {
@@ -324,22 +324,27 @@ export class HeadlessBrowser {
         const btn1 = page.getByTestId("confirmation-submit-button");
         const btn2 = page.getByTestId("confirm-btn");
         const btn3 = page.getByTestId("confirm-footer-button");
+        const btn4 = page.getByTestId("confirm-button");
 
         // Wait until one of these three button visible and click it
-        await Promise.race([
-            btn1.waitFor({ state: "visible" }).then(() => btn1.click()),
-            btn2.waitFor({ state: "visible" }).then(() => btn2.click()),
-            btn3.waitFor({ state: "visible" }).then(() => btn3.click()),
-        ]);
-
-        // ensure the page is closed
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        try {
+            await Promise.race([
+                btn1.waitFor({ state: "visible" }).then(() => btn1.click()),
+                btn2.waitFor({ state: "visible" }).then(() => btn2.click()),
+                btn3.waitFor({ state: "visible" }).then(() => btn3.click()),
+                btn4.waitFor({ state: "visible" }).then(() => btn4.click()),
+            ]);
+            // ensure the page is closed
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            console.log("Confirmed in notification page, and closing it.");
+        } catch (error) {
+            console.error("Notification page button not found", error);
+            throw new Error("Failed to click notification page button");
+        }
 
         if (!page.isClosed()) {
             await page.close();
         }
-
-        console.log("Confirmed in notification page, and closed it.");
     }
 
     async close() {
