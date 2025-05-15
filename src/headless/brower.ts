@@ -301,6 +301,10 @@ export class HeadlessBrowser {
                 return notificationPage;
             }
             if (Date.now() - startTime > timeout) {
+                console.log(
+                    "Timeout, existing pages:",
+                    this.context.pages().map((page) => page.url()),
+                );
                 return undefined;
             }
             await new Promise((resolve) => setTimeout(resolve, 200));
