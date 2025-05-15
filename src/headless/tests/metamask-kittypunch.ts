@@ -14,11 +14,18 @@ async function testMetaMask() {
         await kittypunch.connectWallet();
 
         await kittypunch.doSwap("FLOW", "USDF", "25%");
-        await kittypunch.doSignTransaction();
+        await browser.waitForNotificationPageAndClickConfirm({
+            failCheck: () => kittypunch.inTransactionFailedCheck(),
+            failMessage: "Transaction Request reverted or failed, App shows an error",
+        });
         await kittypunch.waitForTransactionCompleted();
 
         await kittypunch.doSwap("USDF", "FLOW", "Max");
-        await kittypunch.doSignTransaction();
+        // Wait for the notification page to be opened
+        await browser.waitForNotificationPageAndClickConfirm({
+            failCheck: () => kittypunch.inTransactionFailedCheck(),
+            failMessage: "Transaction Request reverted or failed, App shows an error",
+        });
         if (await kittypunch.isApprovingTokens()) {
             await browser.waitForNotificationPageAndClickConfirm();
         }

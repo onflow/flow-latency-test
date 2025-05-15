@@ -74,16 +74,7 @@ export class KittyPunch {
         await swapBtn.click();
     }
 
-    async doSignTransaction() {
-        console.log(
-            "Swapping, waiting for the notification page to be opened, timeout in 60 seconds...",
-        );
-
-        // Wait for the notification page to be opened
-        await this.browser.waitForNotificationPageAndClickConfirm();
-    }
-
-    async inTransactionCheck() {
+    async inTransactionFailedCheck() {
         const page = this.browser.getCurrentPage();
         if (
             (await page
@@ -95,8 +86,9 @@ export class KittyPunch {
                 .filter({ hasText: "reverted with the following reason" })
                 .isVisible())
         ) {
-            throw new Error("Transaction reverted");
+            return true;
         }
+        return false;
     }
 
     async isApprovingTokens() {

@@ -14,13 +14,26 @@ export class DoSigningTransaction extends BaseAction<BrowserContext> {
 
     async fn(ctx: BrowserContext) {
         const { websites, browser } = ctx;
-        if (!websites.kittypunch) {
+        if (websites.kittypunch === undefined) {
             throw new Error("Kittypunch website not found");
         }
 
-        await websites.kittypunch.doSignTransaction();
+        console.log(
+            "Swapping, waiting for the notification page to be opened, timeout in 60 seconds...",
+        );
+
+        // Wait for the notification page to be opened
+        await browser.waitForNotificationPageAndClickConfirm({
+            failCheck: async () => (await websites.kittypunch?.inTransactionFailedCheck()) ?? false,
+            failMessage: "Transaction Request reverted or failed, App shows an error",
+        });
+
         if (await websites.kittypunch.isApprovingTokens()) {
-            await browser.waitForNotificationPageAndClickConfirm();
+            await browser.waitForNotificationPageAndClickConfirm({
+                failCheck: async () =>
+                    (await websites.kittypunch?.inTransactionFailedCheck()) ?? false,
+                failMessage: "Transaction Request reverted or failed, App shows an error",
+            });
         }
         return true;
     }

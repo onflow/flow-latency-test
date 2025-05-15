@@ -72,7 +72,11 @@ export abstract class BaseAction<T extends Context> implements Action<T> {
                         break;
                     }
                     await new Promise((resolve) => setTimeout(resolve, delta));
-                    result = await this.fn(ctx);
+                    try {
+                        result = await this.fn(ctx);
+                    } catch (error) {
+                        console.error(`Action [${this.name}] failed`, error);
+                    }
                     timeout += delta;
                 }
             }

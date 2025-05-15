@@ -284,7 +284,10 @@ export class HeadlessBrowser {
         await page.close();
     }
 
-    async waitForNotificationPageAndClickConfirm() {
+    async waitForNotificationPageAndClickConfirm(opts?: {
+        failCheck?: () => Promise<boolean>;
+        failMessage?: string;
+    }) {
         if (!this.context) {
             throw new Error("Browser context not initialized");
         }
@@ -298,6 +301,16 @@ export class HeadlessBrowser {
             if (notificationPage) {
                 page = notificationPage;
                 break;
+            }
+            if (typeof opts?.failCheck === "function") {
+                const result = await opts.failCheck();
+                if (result) {
+                    if (typeof opts.failMessage === "string") {
+                        console.log(opts.failMessage);
+                        throw new Error(opts.failMessage);
+                    }
+                    break;
+                }
             }
             const timeElapsed = Date.now() - startTime;
             if (timeElapsed > timeout) {
