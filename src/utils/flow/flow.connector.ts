@@ -1,7 +1,7 @@
 import * as fcl from "@onflow/fcl";
 import type { ArgsFn } from "@onflow/fcl-core/types/exec/args";
 import type { Account, TransactionStatus } from "@onflow/typedefs";
-import type { Authz, IFlowScriptExecutor } from "../types";
+import type { Authz, IFlowScriptExecutor } from "../../types/basic";
 
 export type NetworkType = "mainnet" | "testnet" | "emulator";
 

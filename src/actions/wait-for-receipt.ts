@@ -1,11 +1,11 @@
 import { type WaitForTransactionReceiptReturnType, waitForTransactionReceipt } from "@wagmi/core";
 import { flowMainnet, flowTestnet } from "viem/chains";
+import type { EVMBlockchainContext } from "../types/context";
 import { BaseAction, config, networkName } from "../utils";
-import type { EVMBlockchainContext } from "../utils/types";
 
 export class WaitForTransactionReceiptAction extends BaseAction<EVMBlockchainContext> {
     get name() {
-        return `${this.order ? `${this.order}_` : ""}WaitForTransactionReceipt`;
+        return `${typeof this.order === "number" ? `${this.order}_` : ""}WaitForTransactionReceipt`;
     }
     get awaitField() {
         return "hash";

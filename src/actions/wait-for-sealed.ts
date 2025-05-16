@@ -1,9 +1,9 @@
+import type { CadenceBlockchainContext } from "../types/context";
 import { BaseAction } from "../utils";
-import type { CadenceBlockchainContext } from "../utils/types";
 
 export class WaitForTransactionSealed extends BaseAction<CadenceBlockchainContext> {
     get name() {
-        return `${this.order ? `${this.order}_` : ""}WaitForTransactionSealed`;
+        return `${typeof this.order === "number" ? `${this.order}_` : ""}WaitForTransactionSealed`;
     }
     get awaitField() {
         return "hash";

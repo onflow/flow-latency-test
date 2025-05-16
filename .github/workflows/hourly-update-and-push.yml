@@ -6,6 +6,19 @@ on:
         - cron: "0 * * * *"
     # Allows you to trigger manually from GitHub's Actions tab
     workflow_dispatch:
+        # Here we can add a multi-select input to choose which runners to run,
+        # and pass it to the bun start command with --run-types
+        inputs:
+            run_types:
+                type: choice
+                description: "The type of runners to perform"
+                options:
+                    - testnet
+                    - mainnet
+                    - default
+                    - alchemy
+                    - quicknode
+                    - headless-kittypunch
 
 jobs:
     updateAndPush:
@@ -24,24 +37,40 @@ jobs:
             MAINNET_ALCHEMY_URL: ${{ secrets.MAINNET_ALCHEMY_URL }}
             TESTNET_QUICKNODE_URL: ${{ secrets.TESTNET_QUICKNODE_URL }}
             MAINNET_QUICKNODE_URL: ${{ secrets.MAINNET_QUICKNODE_URL }}
+            CHROME_METAMASK_PASSWORD: ${{ secrets.CHROME_METAMASK_PASSWORD }}
+            CHROME_METAMASK_MNEMONIC: ${{ secrets.CHROME_METAMASK_MNEMONIC }}
 
         steps:
+            # checkout current branch
             - uses: actions/checkout@v4
               with:
-                ref: main
+                ref: ${{ github.ref }}
+
+            - name: Install dependencies (curl, jq, unzip)
+              run: |
+                sudo apt-get update
+                sudo apt-get install -y curl jq unzip
+
+            - name: Download Extensions
+              run: ./scripts/download_metamask.sh
 
             - uses: oven-sh/setup-bun@v2
 
             - name: Install Dependencies
               run: bun install
 
+            - name: Install Playwright Chrome
+              run: npx playwright install chromium
+
+            #  If run_types is empty, run all runners
             - name: Run the output generation
-              run: bun start
+              run: bun start --run-types ${{inputs.run_types}}
 
             - name: Commit all updates
               uses: stefanzweifel/git-auto-commit-action@v5
               with:
                 commit_message: "chore: update latency results."
-                branch: main
+                # Use current branch if not specified
+                branch: ${{ inputs.branch || github.ref }}
                 file_pattern: "outputs/*.*"
                 commit_author: "GitHub Action <actions@github.com>"

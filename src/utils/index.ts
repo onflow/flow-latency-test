@@ -1,16 +1,7 @@
-import { privateKeyToAccount } from "viem/accounts";
-import { networkName } from "./config";
-import { FlowConnector, FlowWallet, type NetworkType } from "./flow";
-import type {
-    CadenceBlockchainContext,
-    Context,
-    EVMBlockchainContext,
-    LatencyResult,
-} from "./types";
-
-import flowJSON from '../../flow.json' assert { type: "json" };
-
 export * from "./config";
+export * from "./context";
+
+import type { Context, LatencyResult } from "../types/index";
 
 export function logTimeWrapper(fn: (...args: unknown[]) => Promise<unknown>) {
     return async (...args: unknown[]) => {
@@ -27,7 +18,10 @@ export interface Action<T extends Context> {
 }
 
 export abstract class BaseAction<T extends Context> implements Action<T> {
-    constructor(protected readonly order?: number) {}
+    constructor(
+        protected readonly order?: number,
+        protected readonly maxTimeout: number = 60000,
+    ) {}
 
     abstract get name(): string;
     abstract get awaitField(): string | undefined;
@@ -47,7 +41,7 @@ export abstract class BaseAction<T extends Context> implements Action<T> {
         const record = { waiting: 0, completed: 0 };
 
         const delta = 50;
-        const maxTimeout = 60000;
+        const maxTimeout = this.maxTimeout;
         let isTimeout = false;
         // Wait for the awaitField to be non-undefined
         if (this.awaitField) {
@@ -78,7 +72,11 @@ export abstract class BaseAction<T extends Context> implements Action<T> {
                         break;
                     }
                     await new Promise((resolve) => setTimeout(resolve, delta));
-                    result = await this.fn(ctx);
+                    try {
+                        result = await this.fn(ctx);
+                    } catch (error) {
+                        console.error(`Action [${this.name}] failed`, error);
+                    }
                     timeout += delta;
                 }
             }
@@ -132,23 +130,6 @@ export class Batch<T extends Context> {
             );
         }
     }
-}
-
-export async function buildEVMBlockchainContext(privKey: string) {
-    // Create a private key from the environment variable
-    const key = privKey.startsWith("0x") ? privKey.substring(2) : privKey;
-
-    const account = privateKeyToAccount(`0x${key}`);
-    console.log(`[Address: ${account.address} @${networkName}]`);
-
-    return { account, latencies: {} } as EVMBlockchainContext;
-}
-
-export async function buildCadenceBlockchainContext(useSoftFinality = false) {
-    const connecter = new FlowConnector(flowJSON, networkName as NetworkType, useSoftFinality);
-    const wallet = new FlowWallet(connecter)
-
-    return { wallet, latencies: {} } as CadenceBlockchainContext;
 }
 
 export function generateFlattenJson(results: LatencyResult[]) {

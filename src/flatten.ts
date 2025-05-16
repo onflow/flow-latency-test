@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
+import type { ResultJson } from "./types/outputs";
 import { generateFlattenJson } from "./utils";
-import type { ResultJson } from "./utils/types";
 
 async function main() {
     // Read latency_results.json

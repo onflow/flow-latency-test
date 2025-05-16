@@ -1,7 +1,7 @@
 import * as fcl from "@onflow/fcl";
 import type { ArgsFn } from "@onflow/fcl-core/types/exec/args";
 import type { Account, CompositeSignature } from "@onflow/typedefs";
-import type { Authz, IFlowScriptExecutor, IFlowSigner } from "../types";
+import type { Authz, IFlowScriptExecutor, IFlowSigner } from "../../types/basic";
 import type { FlowConnector } from "./flow.connector";
 import { signWithKey } from "./pure.signer";
 

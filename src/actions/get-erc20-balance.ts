@@ -1,7 +1,7 @@
 import { readContract } from "@wagmi/core";
 import { flowMainnet, flowTestnet } from "viem/chains";
+import type { EVMBlockchainContext } from "../types/index";
 import { BaseAction, config, networkName } from "../utils";
-import type { EVMBlockchainContext } from "../utils/types";
 
 export class GeERC20BalanceAction extends BaseAction<EVMBlockchainContext> {
     private _field: string;
@@ -14,7 +14,7 @@ export class GeERC20BalanceAction extends BaseAction<EVMBlockchainContext> {
     }
 
     get name() {
-        return `${this.order ? `${this.order}_` : ""}GetBalance_Await_${this._field}${this.awaitChange ? "->Change" : ""}`;
+        return `${typeof this.order === "number" ? `${this.order}_` : ""}GetBalance_Await_${this._field}${this.awaitChange ? "->Change" : ""}`;
     }
     get awaitField() {
         return this._field;

@@ -1,8 +1,8 @@
 import { sendTransaction } from "@wagmi/core";
 import { parseEther } from "viem";
 import { flowMainnet, flowTestnet } from "viem/chains";
+import type { EVMBlockchainContext } from "../types/index";
 import { BaseAction, config, networkName } from "../utils";
-import type { EVMBlockchainContext } from "../utils/types";
 
 export class TransferERC20Action extends BaseAction<EVMBlockchainContext> {
     get name() {
