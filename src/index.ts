@@ -119,7 +119,7 @@ async function main() {
     // Use minimist to parse CLI arguments
     const argv = minimist(process.argv.slice(2));
     let runTypes: string[] | null = null;
-    if (argv["run-types"]) {
+    if (argv["run-types"] && argv["run-types"] !== true) {
         if (Array.isArray(argv["run-types"])) {
             // Support comma-separated and repeated --run-types
             runTypes = argv["run-types"].flatMap((v: string) =>
