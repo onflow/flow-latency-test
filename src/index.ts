@@ -2,7 +2,7 @@ import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import minimist from "minimist";
-import type { LatencyData, ParsedLatency } from "./types/outputs";
+import type { LatencyData, LatencyResult, ParsedLatency, ResultJson } from "./types/outputs";
 import { generateFlattenJson } from "./utils";
 
 const runners = [
@@ -260,9 +260,11 @@ async function main() {
     const timestamp = nowStr.replace(/[:.]/g, "-");
     const outputPath = path.join(csvOutputsDir, `latency_results_${timestamp}.csv`);
 
-    // Write to file
-    fs.writeFileSync(outputPath, csvRows.join("\n"));
-    console.log(`Results have been saved to ${outputPath}`);
+    if (csvRows.length > 1) {
+        // Write to csv file
+        fs.writeFileSync(outputPath, csvRows.join("\n"));
+        console.log(`Results have been saved to ${outputPath}`);
+    }
 
     // merge the data into latency_results.json
     // Load existing latency results from JSON file
@@ -289,33 +291,68 @@ async function main() {
         ),
     }));
 
-    if (formattedResults.length === 0) {
+    if (formattedResults.length > 0) {
         // Add the formatted results to the existing results
-        console.log("No results to merge");
-        return;
+        existingResults.results.push({
+            timestamp: nowStr,
+            tests: formattedResults,
+        });
+    } else {
+        console.log("No new results to merge.");
     }
 
-    existingResults.results.push({
-        timestamp: nowStr,
-        tests: formattedResults,
-    });
+    // Optimize the existingResults.results array, only keep the last 1 month of data
+    const oneMonthAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+    const archiveResults = existingResults.results.filter(
+        (result: LatencyResult) => new Date(result.timestamp).getTime() < oneMonthAgo,
+    );
+    existingResults.results = existingResults.results.filter(
+        (result: LatencyResult) => new Date(result.timestamp).getTime() >= oneMonthAgo,
+    );
 
-    // Update the last_updated timestamp
-    existingResults.last_updated = nowStr;
+    if (formattedResults.length > 0 || archiveResults.length > 0) {
+        // Update the last_updated timestamp
+        existingResults.last_updated = nowStr;
 
-    // Write the updated results back to the JSON file
-    fs.writeFileSync(existingResultsPath, JSON.stringify(existingResults, null, 4));
-    console.log(`Results have been merged into ${existingResultsPath}`);
+        if (archiveResults.length > 0) {
+            console.log(
+                `Archiving results from the last 1 month, amount: ${archiveResults.length}`,
+            );
+            // Merge the archive results into the previous results
+            const firstArchiveDate = new Date(archiveResults[0].timestamp);
+            const firstArchiveQuarterFileName = `${firstArchiveDate.getFullYear()}Q${Math.ceil(firstArchiveDate.getMonth() / 3)}_latency_results.json`;
+            const lastQuarterResultsFilePath = path.join(
+                outputsDir,
+                "archived",
+                firstArchiveQuarterFileName,
+            );
+            // Load the previous results
+            let lastQuarterResults: ResultJson = { last_updated: nowStr, results: [] };
+            // check if the file exists
+            if (fs.existsSync(lastQuarterResultsFilePath)) {
+                lastQuarterResults = require(lastQuarterResultsFilePath) as ResultJson;
+            }
+            lastQuarterResults.results.push(...archiveResults);
+            fs.writeFileSync(
+                lastQuarterResultsFilePath,
+                JSON.stringify(lastQuarterResults, null, 4),
+            );
+        }
 
-    // Export flattened output json file
-    const flattenedOutputPath = path.join(outputsDir, "flattened_output.json");
+        // Write the updated results back to the JSON file
+        fs.writeFileSync(existingResultsPath, JSON.stringify(existingResults, null, 4));
+        console.log(`Results have been merged into ${existingResultsPath}`);
 
-    // Load and process the latency results
-    const flattenedResults = generateFlattenJson(existingResults.results);
+        // Export flattened output json file
+        const flattenedOutputPath = path.join(outputsDir, "flattened_output.json");
 
-    // Write flattened results to file
-    fs.writeFileSync(flattenedOutputPath, JSON.stringify(flattenedResults, null, 4));
-    console.log(`Flattened results have been saved to ${flattenedOutputPath}`);
+        // Load and process the latency results
+        const flattenedResults = generateFlattenJson(existingResults.results);
+
+        // Write flattened results to file
+        fs.writeFileSync(flattenedOutputPath, JSON.stringify(flattenedResults, null, 4));
+        console.log(`Flattened results have been saved to ${flattenedOutputPath}`);
+    }
 }
 
 main().catch(console.error);

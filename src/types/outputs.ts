@@ -24,6 +24,6 @@ export interface LatencyResult {
 }
 
 export interface ResultJson {
-    timestamp: string;
+    last_updated: string;
     results: Array<LatencyResult>;
 }
