@@ -26,6 +26,13 @@ const extensionPaths: Record<ExtensionType, ExtensionConfig> = {
     },
 };
 
+function logWithTimestamp(message: string) {
+    const now = new Date();
+    const timestamp = now.toISOString();
+    // Add some color and formatting for better visibility
+    console.log(`\x1b[35m[HeadlessBrowser][${timestamp}]\x1b[0m ${message}`);
+}
+
 export class HeadlessBrowser {
     private page: Page | undefined = undefined;
     private context: BrowserContext | undefined = undefined;
@@ -70,7 +77,7 @@ export class HeadlessBrowser {
             "--disable-gpu",
             "--disable-software-rasterizer",
         ];
-        console.log("Starting browser with args:", args);
+        logWithTimestamp(`Starting browser with args: ${JSON.stringify(args)}`);
 
         try {
             const context = await chromium.launchPersistentContext(USER_DATA_DIR, {
@@ -84,7 +91,7 @@ export class HeadlessBrowser {
             // We can still use the context directly
             this.context = context;
 
-            console.log("Chrome launched with persistent context");
+            logWithTimestamp("Chrome launched with persistent context");
 
             await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -95,18 +102,21 @@ export class HeadlessBrowser {
                 this.extensionWorker = workers[0];
             }
             const url = this.extensionWorker?.url();
-            console.log("Extension worker loaded, URL:", url);
+            logWithTimestamp(`Extension worker loaded, URL: ${url}`);
             this.cachedExtensionId = url?.split("/")[2];
 
-            console.log("Browser initialized successfully");
+            logWithTimestamp("Browser initialized successfully");
         } catch (error) {
-            console.error("Failed to initialize browser:", error);
+            logWithTimestamp(
+                `Failed to initialize browser: ${error instanceof Error ? error.message : String(error)}`,
+            );
             throw error;
         }
     }
 
     async ensureExtensionLoaded() {
         if (!this.context) {
+            logWithTimestamp("Browser context not initialized");
             throw new Error("Browser context not initialized");
         }
 
@@ -117,7 +127,7 @@ export class HeadlessBrowser {
             } else {
                 this.extensionWorker = workers[0];
             }
-            console.log("Extension worker loaded, URL:", this.extensionWorker?.url());
+            logWithTimestamp(`Extension worker loaded, URL: ${this.extensionWorker?.url()}`);
         }
 
         // Check if MetaMask background page exists
@@ -126,15 +136,18 @@ export class HeadlessBrowser {
             .includes(this.expectedExtensionUrlPrefix);
 
         if (!extensionLoaded) {
+            logWithTimestamp(`${this.extension} extension not found or not properly loaded`);
             throw new Error(`${this.extension} extension not found or not properly loaded`);
         }
 
         // wait for 1 second
         await new Promise((resolve) => setTimeout(resolve, 1000));
+        logWithTimestamp("Extension loaded and ready");
     }
 
     async activateMetamaskHomePage(reload = false) {
         if (!this.context) {
+            logWithTimestamp("Browser context not initialized");
             throw new Error("Browser context not initialized");
         }
 
@@ -145,7 +158,7 @@ export class HeadlessBrowser {
             page = pages.find((page) => page.url().includes(this.expectedExtensionUrlPrefix));
         }
         if (!page) {
-            console.log("No page found, creating new page");
+            logWithTimestamp("No page found, creating new page");
             page = await this.context.newPage();
         }
         if (reload || !page.url().includes(this.expectedExtensionUrlPrefix)) {
@@ -154,15 +167,18 @@ export class HeadlessBrowser {
         this.extensionPage = page;
         this.page = page;
 
-        console.log("Extension page URL:", this.extensionPage.url());
+        logWithTimestamp(`Extension page URL: ${this.extensionPage.url()}`);
         await this.extensionPage.waitForLoadState("domcontentloaded");
         await this.bringPageToFront();
+        logWithTimestamp("Extension home page activated and brought to front");
     }
 
     async activateMetamask(reload = false) {
+        logWithTimestamp("Activating MetaMask extension...");
         await this.activateMetamaskHomePage(reload);
 
         if (this.extensionPage === undefined) {
+            logWithTimestamp("Extension page not initialized");
             throw new Error("Extension page not initialized");
         }
 
@@ -171,11 +187,13 @@ export class HeadlessBrowser {
 
         const unlockPassword = this.extensionPage.getByTestId("unlock-password");
         if (await unlockPassword.isVisible()) {
+            logWithTimestamp("Unlocking MetaMask with password");
             // Input password
             await unlockPassword.fill(UNLOCK_PASSWORD);
             // Click unlock button
             await this.extensionPage.getByTestId("unlock-submit").click();
         } else {
+            logWithTimestamp("MetaMask onboarding: accepting terms and importing wallet");
             await this.extensionPage.getByTestId("onboarding-terms-checkbox").click();
 
             const importWalletButton = this.extensionPage.getByTestId("onboarding-import-wallet");
@@ -183,6 +201,7 @@ export class HeadlessBrowser {
             if (await importWalletButton.isEnabled()) {
                 await importWalletButton.click();
             } else {
+                logWithTimestamp("Import wallet button not found");
                 throw new Error("Import wallet button not found");
             }
 
@@ -193,6 +212,7 @@ export class HeadlessBrowser {
 
             const mnemonicWords = MNEMONIC?.split(" ") ?? [];
             if (mnemonicWords.length !== 12) {
+                logWithTimestamp("Invalid mnemonic");
                 throw new Error("Invalid mnemonic");
             }
 
@@ -200,7 +220,10 @@ export class HeadlessBrowser {
                 if (typeof mnemonicWords[i] === "string") {
                     const word: string = mnemonicWords[i] as string;
                     await this.extensionPage.getByTestId(`import-srp__srp-word-${i}`).fill(word);
-                } else throw new Error("Invalid mnemonic word");
+                } else {
+                    logWithTimestamp("Invalid mnemonic word");
+                    throw new Error("Invalid mnemonic word");
+                }
             }
 
             await this.extensionPage.getByTestId("import-srp-confirm").click();
@@ -240,15 +263,19 @@ export class HeadlessBrowser {
                 await next2Btn.click();
             }
         }
+        logWithTimestamp("MetaMask activated and ready");
     }
 
     async switchToFlowMainnet() {
+        logWithTimestamp("Switching to Flow Mainnet network...");
         await this.activateMetamaskHomePage();
 
         if (this.context === undefined) {
+            logWithTimestamp("Browser context not initialized");
             throw new Error("Browser context not initialized");
         }
         if (this.extensionPage === undefined) {
+            logWithTimestamp("Extension page not initialized");
             throw new Error("Extension page not initialized");
         }
 
@@ -256,30 +283,30 @@ export class HeadlessBrowser {
         // get the text of the network button
         const networkText = await networkButton.locator("p").textContent();
         if (networkText?.includes("Flow EVM")) {
-            console.log("Already on Flow Mainnet");
+            logWithTimestamp("Already on Flow Mainnet");
             return;
         }
 
-        console.log("Go to flow doc to add network");
+        logWithTimestamp("Go to flow doc to add network");
 
         // goto flow doc to add
         const page = await this.context.newPage();
         await page.goto("https://developers.flow.com/evm/using");
         await page.waitForLoadState("domcontentloaded");
 
-        console.log("Page loaded, waiting for network item to be visible");
+        logWithTimestamp("Page loaded, waiting for network item to be visible");
 
         const networkItem = page.getByText("Add Flow EVM Network");
         await networkItem.waitFor({ state: "visible" });
-        console.log("Network item visible, clicking");
+        logWithTimestamp("Network item visible, clicking");
         await networkItem.click();
 
-        console.log("Clicked, waiting for notification page to be opened");
+        logWithTimestamp("Clicked, waiting for notification page to be opened");
 
         // wait for notification page to be opened
         await this.waitForNotificationPageAndClickConfirm();
 
-        console.log("Notification page confirmed, closing page");
+        logWithTimestamp("Notification page confirmed, closing page");
 
         await page.close();
     }
@@ -289,6 +316,7 @@ export class HeadlessBrowser {
         failMessage?: string;
     }) {
         if (!this.context) {
+            logWithTimestamp("Browser context not initialized");
             throw new Error("Browser context not initialized");
         }
 
@@ -296,17 +324,19 @@ export class HeadlessBrowser {
         const timeToOpenNotificationPage = 15000;
         const startTime = Date.now();
         let page: Page | undefined = undefined;
+        logWithTimestamp("Waiting for notification page to open...");
         while (true) {
             const notificationPage = this.findPageByUrl(this.expectedExtensionNotificationUrl);
             if (notificationPage) {
                 page = notificationPage;
+                logWithTimestamp("Notification page found");
                 break;
             }
             if (typeof opts?.failCheck === "function") {
                 const result = await opts.failCheck();
                 if (result) {
                     if (typeof opts.failMessage === "string") {
-                        console.log(opts.failMessage);
+                        logWithTimestamp(opts.failMessage);
                         throw new Error(opts.failMessage);
                     }
                     break;
@@ -314,10 +344,11 @@ export class HeadlessBrowser {
             }
             const timeElapsed = Date.now() - startTime;
             if (timeElapsed > timeout) {
+                logWithTimestamp("Timeout waiting for notification page");
                 break;
             }
             if (timeElapsed > timeToOpenNotificationPage) {
-                console.log("No notification page found, forcing to open");
+                logWithTimestamp("No notification page found, forcing to open");
                 page = await this.context.newPage();
                 await page.goto(this.expectedExtensionNotificationUrl);
                 break;
@@ -326,9 +357,11 @@ export class HeadlessBrowser {
         }
 
         if (!page) {
-            console.log(
-                "Timeout, existing pages:",
-                this.context.pages().map((page) => page.url()),
+            logWithTimestamp(
+                `Timeout, existing pages: ${this.context
+                    .pages()
+                    .map((page) => page.url())
+                    .join(", ")}`,
             );
             throw new Error("Notification page not found");
         }
@@ -349,9 +382,11 @@ export class HeadlessBrowser {
             ]);
             // ensure the page is closed
             await new Promise((resolve) => setTimeout(resolve, 500));
-            console.log("Confirmed in notification page, and closing it.");
+            logWithTimestamp("Confirmed in notification page, and closing it.");
         } catch (error) {
-            console.error("Notification page button not found", error);
+            logWithTimestamp(
+                `Notification page button not found: ${error instanceof Error ? error.message : String(error)}`,
+            );
             throw new Error("Failed to click notification page button");
         }
 
@@ -362,27 +397,33 @@ export class HeadlessBrowser {
 
     async close() {
         if (this.context) {
+            logWithTimestamp("Closing browser context...");
             await this.context.close();
             this.context = undefined;
             this.page = undefined;
             this.extensionWorker = undefined;
+            logWithTimestamp("Browser context closed.");
         }
     }
 
     async bringPageToFront() {
         if (!this.page) {
+            logWithTimestamp("Page not initialized");
             throw new Error("Page not initialized");
         }
         await this.page.bringToFront();
+        logWithTimestamp("Page brought to front");
     }
 
     async openNewPageWithUrl(url: string) {
         if (!this.context) {
+            logWithTimestamp("Browser context not initialized");
             throw new Error("Browser context not initialized");
         }
         // ensure URL is valid
         const urlObj = new URL(url);
         if (!urlObj.protocol) {
+            logWithTimestamp("Invalid URL");
             throw new Error("Invalid URL");
         }
 
@@ -392,36 +433,46 @@ export class HeadlessBrowser {
         this.page = page;
 
         await this.bringPageToFront();
+        logWithTimestamp(`New page opened with URL: ${urlObj.href}`);
 
         return page;
     }
 
     async setPageWithUrl(url: string) {
         if (!this.context) {
+            logWithTimestamp("Browser context not initialized");
             throw new Error("Browser context not initialized");
         }
         if (!this.page) {
             this.page = await this.context.newPage();
         }
         if (this.page.url().includes(url)) {
+            logWithTimestamp(`Page already at URL: ${url}`);
             return this.page;
         }
 
         await this.page.goto(url, { waitUntil: "domcontentloaded" });
         await this.bringPageToFront();
+        logWithTimestamp(`Page navigated to URL: ${url}`);
 
         return this.page;
     }
 
     findPageByUrl(url: string) {
         if (!this.context) {
+            logWithTimestamp("Browser context not initialized");
             throw new Error("Browser context not initialized");
         }
-        return this.context.pages().find((page) => page.url().includes(url));
+        const found = this.context.pages().find((page) => page.url().includes(url));
+        if (found) {
+            logWithTimestamp(`Found page with URL containing: ${url}`);
+        }
+        return found;
     }
 
     getCurrentPage(): Page {
         if (!this.page) {
+            logWithTimestamp("Current page not initialized");
             throw new Error("Current page not initialized");
         }
         return this.page;
@@ -429,6 +480,7 @@ export class HeadlessBrowser {
 
     getContext(): BrowserContext {
         if (!this.context) {
+            logWithTimestamp("Browser context not initialized");
             throw new Error("Browser context not initialized");
         }
         return this.context;
