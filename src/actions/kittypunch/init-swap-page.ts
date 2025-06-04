@@ -3,7 +3,7 @@ import { BaseAction } from "../../utils";
 
 export class InitKittypunchSwap extends BaseAction<BrowserContext> {
     get name() {
-        return `${typeof this.order === "number" ? `${this.order}_` : ""}KittypunchSwap_Init`;
+        return `${typeof this.order === "number" ? `${this.order}_` : ""}KittypunchSwap_PageInit`;
     }
     get awaitField() {
         return undefined;
