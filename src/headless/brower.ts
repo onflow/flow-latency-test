@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import type { BrowserContext, Page, Worker } from "playwright";
 import { type ExtensionConfig, type ExtensionType, extensionTypes } from "./types";
+import { importAccountBySeedPhrase } from "./helper";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -76,16 +77,24 @@ export class HeadlessBrowser {
             "--disable-dev-shm-usage",
             "--disable-gpu",
             "--disable-software-rasterizer",
+            "--allow-read-clipboard",
+            "--allow-write-clipboard",
+            "--lang=en-US",
         ];
         logWithTimestamp(`Starting browser with args: ${JSON.stringify(args)}`);
 
         try {
             const context = await chromium.launchPersistentContext(USER_DATA_DIR, {
                 channel: "chromium",
-                headless: true,
+                headless: false,
                 args,
                 ignoreDefaultArgs: ["--disable-extensions"],
-            });
+                env: {
+                    LANGUAGE: 'en_US',
+                },
+                permissions: ['clipboard-read', 'clipboard-write'],
+            },
+            );
 
             // For persistent context, browser() returns null
             // We can still use the context directly
@@ -266,7 +275,32 @@ export class HeadlessBrowser {
         logWithTimestamp("MetaMask activated and ready");
     }
 
+    async activateFlowWallet(reload = false) {
+        const pages = this.context?.pages();
+        if (pages && pages.length === 0) {
+            logWithTimestamp("No page found, creating new page");
+            this.extensionPage = await this.context?.newPage();
+        }
+        if (this.extensionPage === undefined && pages && pages.length > 0) {
+            this.extensionPage = pages[pages.length - 1];
+        }
+        logWithTimestamp("Flow Wallet about to import account");
+
+        await importAccountBySeedPhrase({
+            page: this.extensionPage!,
+            extensionId: this.extensionId,
+            seedPhrase: process.env.CHROME_METAMASK_MNEMONIC!,
+            username: process.env.CHROME_METAMASK_NICKNAME!,
+            accountAddr: process.env.FLOW_ADDRESS!,
+        });
+
+        logWithTimestamp("Flow Wallet activated and ready");
+    }
     async switchToFlowMainnet() {
+        if (this.extension === "flowwallet") {
+            // TODO: switch to flow mainnet
+            return;
+        }
         logWithTimestamp("Switching to Flow Mainnet network...");
         await this.activateMetamaskHomePage();
 
@@ -371,6 +405,8 @@ export class HeadlessBrowser {
         const btn2 = page.getByTestId("confirm-btn");
         const btn3 = page.getByTestId("confirm-footer-button");
         const btn4 = page.getByTestId("confirm-button");
+        const btn5 = page.getByRole('button', { name: 'Connect' });
+        const btn6 = page.getByRole('button', { name: 'Approve' });
 
         // Wait until one of these three button visible and click it
         try {
@@ -379,6 +415,8 @@ export class HeadlessBrowser {
                 btn2.waitFor({ state: "visible" }).then(() => btn2.click()),
                 btn3.waitFor({ state: "visible" }).then(() => btn3.click()),
                 btn4.waitFor({ state: "visible" }).then(() => btn4.click()),
+                btn5.waitFor({ state: "visible" }).then(() => btn5.click()),
+                btn6.waitFor({ state: "visible" }).then(() => btn6.click()),
             ]);
             // ensure the page is closed
             await new Promise((resolve) => setTimeout(resolve, 500));
