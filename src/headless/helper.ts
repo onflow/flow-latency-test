@@ -218,12 +218,9 @@ export const importAccountBySeedPhrase = async ({
   extensionId,
   seedPhrase,
   username,
+  password,
   accountAddr = '',
-}: { page: Page, extensionId: string, seedPhrase: string, username: string, accountAddr?: string }) => {
-  const password = process.env.TEST_PASSWORD;
-  if (!password) {
-    throw new Error('TEST_PASSWORD is not set');
-  }
+}: { page: Page, extensionId: string, seedPhrase: string, username: string, password: string, accountAddr?: string }) => {
   if (page.url().includes('dashboard')) {
     // Wait for the dashboard page to be fully loaded
     await page.waitForURL(/.*\/dashboard.*/);
@@ -297,112 +294,6 @@ export const importAccountBySeedPhrase = async ({
   return flowAddr;
 };
 
-export const importSenderAccount = async ({ page, extensionId }: { page: Page, extensionId: string }) => {
-  await importAccountBySeedPhrase({
-    page,
-    extensionId,
-    seedPhrase: process.env.TEST_SEED_PHRASE_SENDER!,
-    username: 'sender',
-    accountAddr: process.env.TEST_SENDER_ADDR!,
-  });
-};
-
-export const loginToSenderAccount = async ({ page, extensionId }: { page: Page, extensionId: string }) => {
-  if (!process.env.TEST_SENDER_ADDR) {
-    throw new Error('TEST_SENDER_ADDR is not set');
-  }
-
-  if (!process.env.TEST_PASSWORD) {
-    throw new Error('TEST_PASSWORD is not set');
-  }
-
-  await loginToExtensionAccount({
-    page,
-    extensionId,
-    addr: process.env.TEST_SENDER_ADDR!,
-    password: process.env.TEST_PASSWORD!,
-    nickname: process.env.TEST_SENDER_NICKNAME!,
-  });
-};
-
-export const loginToReceiverAccount = async ({ page, extensionId }: { page: Page, extensionId: string }) => {
-  if (!process.env.TEST_RECEIVER_ADDR) {
-    throw new Error('TEST_RECEIVER_ADDR is not set');
-  }
-
-  if (!process.env.TEST_PASSWORD) {
-    throw new Error('TEST_PASSWORD is not set');
-  }
-
-  await loginToExtensionAccount({
-    page,
-    extensionId,
-    addr: process.env.TEST_RECEIVER_ADDR!,
-    password: process.env.TEST_PASSWORD!,
-    nickname: process.env.TEST_RECEIVER_NICKNAME!,
-  });
-};
-
-export const importReceiverAccount = async ({ page, extensionId }: { page: Page, extensionId: string }) => {
-  await importAccountBySeedPhrase({
-    page,
-    extensionId,
-    seedPhrase: process.env.TEST_SEED_PHRASE_RECEIVER!,
-    username: 'receiver',
-    accountAddr: process.env.TEST_RECEIVER_ADDR!,
-  });
-};
-
-export const getSenderCadenceAccount = ({ parallelIndex }: { parallelIndex: number }) => {
-  // If parallel index is 0, login to sender account, otherwise login to receiver account
-  if (parallelIndex === 0) {
-    // We've logged into the sender account, and we need to send tokens to the receiver account
-    return process.env.TEST_SENDER_ADDR;
-  } else {
-    // We've logged into the receiver account, and we need to send tokens back to the sender account
-    return process.env.TEST_RECEIVER_ADDR;
-  }
-};
-
-export const getReceiverCadenceAccount = ({ parallelIndex }: { parallelIndex: number }) => {
-  // If parallel index is 0, login to sender account, otherwise login to receiver account
-  if (parallelIndex === 0) {
-    // We've logged into the sender account, and we need to send tokens to the receiver account
-    return process.env.TEST_RECEIVER_ADDR;
-  } else {
-    // We've logged into the receiver account, and we need to send tokens back to the sender account
-    return process.env.TEST_SENDER_ADDR;
-  }
-};
-export const getSenderEvmAccount = ({ parallelIndex }: { parallelIndex: number }) => {
-  // If parallel index is 0, login to sender account, otherwise login to receiver account
-  if (parallelIndex === 0) {
-    // We've logged into the sender account, and we need to send tokens to the receiver account
-    return process.env.TEST_SENDER_EVM_ADDR;
-  } else {
-    // We've logged into the receiver account, and we need to send tokens back to the sender account
-    return process.env.TEST_RECEIVER_EVM_ADDR;
-  }
-};
-export const getReceiverEvmAccount = ({ parallelIndex }: { parallelIndex: number }) => {
-  // If parallel index is 0, login to sender account, otherwise login to receiver account
-  if (parallelIndex === 0) {
-    // We've logged into the sender account, and we need to send tokens to the receiver account
-    return process.env.TEST_RECEIVER_EVM_ADDR;
-  } else {
-    // We've logged into the receiver account, and we need to send tokens back to the sender account
-    return process.env.TEST_SENDER_EVM_ADDR;
-  }
-};
-
-export const loginToSenderOrReceiver = async ({ page, extensionId, parallelIndex }: { page: Page, extensionId: string, parallelIndex: number }) => {
-  // If parallel index is 0, login to sender account, otherwise login to receiver account
-  if (parallelIndex === 0) {
-    await loginToSenderAccount({ page, extensionId });
-  } else {
-    await loginToReceiverAccount({ page, extensionId });
-  }
-};
 
 export const switchToEvmAddress = async ({ page, address }: { page: Page, address: string }) => {
   // Assume the user is on the dashboard page

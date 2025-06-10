@@ -16,6 +16,11 @@ const USER_DATA_DIR = path.join(__dirname, "../../user-data");
 const UNLOCK_PASSWORD = process.env.CHROME_METAMASK_PASSWORD || "123456";
 const MNEMONIC = process.env.CHROME_METAMASK_MNEMONIC;
 
+const FLOW_WALLET_MNEMONIC = process.env.FLOW_WALLET_MNEMONIC || MNEMONIC;
+const FLOW_WALLET_PASSWORD = process.env.FLOW_WALLET_PASSWORD || UNLOCK_PASSWORD;
+const FLOW_WALLET_USERNAME = process.env.FLOW_WALLET_USERNAME || 'latency';
+const FLOW_WALLET_ADDRESS = process.env.FLOW_ADDRESS;
+
 const extensionPaths: Record<ExtensionType, ExtensionConfig> = {
     metamask: {
         path: path.join(EXTENSION_FOLDER_PATH, "metamask"),
@@ -289,9 +294,10 @@ export class HeadlessBrowser {
         await importAccountBySeedPhrase({
             page: this.extensionPage!,
             extensionId: this.extensionId,
-            seedPhrase: process.env.CHROME_METAMASK_MNEMONIC!,
-            username: process.env.CHROME_METAMASK_NICKNAME!,
-            accountAddr: process.env.FLOW_ADDRESS!,
+            seedPhrase: FLOW_WALLET_MNEMONIC!,
+            username: FLOW_WALLET_USERNAME!,
+            password: FLOW_WALLET_PASSWORD,
+            accountAddr: FLOW_WALLET_ADDRESS!,
         });
 
         logWithTimestamp("Flow Wallet activated and ready");
