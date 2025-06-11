@@ -35,7 +35,7 @@ export class KittyPunch {
         logWithTimestamp("Clicking 'Connect Wallet' button...");
         await connectBtn.click();
         logWithTimestamp("Selecting installed wallet option...");
-        await page.getByTestId(/rk-wallet-option-com\.*/).first().click();
+        await page.getByTestId(/rk-wallet-option-(com|io)\.*/).first().click();
         logWithTimestamp("Waiting for wallet notification and confirming...");
         // wait for notification page to be opened
         await this.browser.waitForNotificationPageAndClickConfirm();
