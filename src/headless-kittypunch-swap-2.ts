@@ -1,4 +1,4 @@
-import { buildHeadlessBrowerContextWithFlowWallet, buildHeadlessBrowerContextWithMetamask, enableKittypunch } from "./headless/context";
+import { buildHeadlessBrowerContextWithMetamask, enableKittypunch } from "./headless/context";
 import { Batch } from "./utils";
 
 import {
@@ -9,7 +9,7 @@ import {
 } from "./actions/kittypunch";
 
 async function start() {
-    const ctx = await buildHeadlessBrowerContextWithFlowWallet();
+    const ctx = await buildHeadlessBrowerContextWithMetamask();
     await enableKittypunch(ctx);
 
     const batch = new Batch(ctx, [
