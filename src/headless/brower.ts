@@ -68,6 +68,9 @@ export class HeadlessBrowser {
     }
 
     get expectedExtensionHomeUrl() {
+        if (this.extension === "flowwallet") {
+            return `chrome-extension://${this.extensionId}/index.html`;
+        }
         return `chrome-extension://${this.extensionId}/home.html`;
     }
 
@@ -91,7 +94,7 @@ export class HeadlessBrowser {
         try {
             const context = await chromium.launchPersistentContext(USER_DATA_DIR, {
                 channel: "chromium",
-                headless: false,
+                headless: true,
                 args,
                 ignoreDefaultArgs: ["--disable-extensions"],
                 env: {
