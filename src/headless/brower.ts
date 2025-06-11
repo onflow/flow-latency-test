@@ -2,8 +2,9 @@ import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import type { BrowserContext, Page, Worker } from "playwright";
-import { type ExtensionConfig, type ExtensionType, extensionTypes } from "./types";
+import { networkName } from "../utils/config";
 import { importAccountBySeedPhrase } from "./helper";
+import { type ExtensionConfig, type ExtensionType, extensionTypes } from "./types";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,8 +19,9 @@ const MNEMONIC = process.env.CHROME_METAMASK_MNEMONIC;
 
 const FLOW_WALLET_MNEMONIC = process.env.FLOW_WALLET_MNEMONIC || MNEMONIC;
 const FLOW_WALLET_PASSWORD = process.env.FLOW_WALLET_PASSWORD || UNLOCK_PASSWORD;
-const FLOW_WALLET_USERNAME = process.env.FLOW_WALLET_USERNAME || 'latency';
-const FLOW_WALLET_ADDRESS = process.env.FLOW_ADDRESS;
+const FLOW_WALLET_USERNAME = process.env.FLOW_WALLET_USERNAME || "latency";
+const FLOW_WALLET_ADDRESS =
+    process.env[`${networkName.toUpperCase()}_FLOW_ADDRESS`] || process.env.FLOW_ADDRESS;
 
 const extensionPaths: Record<ExtensionType, ExtensionConfig> = {
     metamask: {
@@ -98,11 +100,10 @@ export class HeadlessBrowser {
                 args,
                 ignoreDefaultArgs: ["--disable-extensions"],
                 env: {
-                    LANGUAGE: 'en_US',
+                    LANGUAGE: "en_US",
                 },
-                permissions: ['clipboard-read', 'clipboard-write'],
-            },
-            );
+                permissions: ["clipboard-read", "clipboard-write"],
+            });
 
             // For persistent context, browser() returns null
             // We can still use the context directly
@@ -283,7 +284,7 @@ export class HeadlessBrowser {
         logWithTimestamp("MetaMask activated and ready");
     }
 
-    async activateFlowWallet(reload = false) {
+    async activateFlowWallet() {
         const pages = this.context?.pages();
         if (pages && pages.length === 0) {
             logWithTimestamp("No page found, creating new page");
@@ -294,13 +295,29 @@ export class HeadlessBrowser {
         }
         logWithTimestamp("Flow Wallet about to import account");
 
+        if (!this.extensionPage) {
+            logWithTimestamp("Extension page not initialized");
+            throw new Error("Extension page not initialized");
+        }
+
+        // ensure all the env variables are set
+        if (
+            !FLOW_WALLET_MNEMONIC ||
+            !FLOW_WALLET_USERNAME ||
+            !FLOW_WALLET_PASSWORD ||
+            !FLOW_WALLET_ADDRESS
+        ) {
+            logWithTimestamp("Flow wallet mnemonic, username, password, and address are not set");
+            throw new Error("Flow wallet mnemonic, username, password, and address are not set");
+        }
+
         await importAccountBySeedPhrase({
-            page: this.extensionPage!,
+            page: this.extensionPage,
             extensionId: this.extensionId,
-            seedPhrase: FLOW_WALLET_MNEMONIC!,
-            username: FLOW_WALLET_USERNAME!,
+            seedPhrase: FLOW_WALLET_MNEMONIC,
+            username: FLOW_WALLET_USERNAME,
             password: FLOW_WALLET_PASSWORD,
-            accountAddr: FLOW_WALLET_ADDRESS!,
+            accountAddr: FLOW_WALLET_ADDRESS,
         });
 
         logWithTimestamp("Flow Wallet activated and ready");
@@ -414,8 +431,8 @@ export class HeadlessBrowser {
         const btn2 = page.getByTestId("confirm-btn");
         const btn3 = page.getByTestId("confirm-footer-button");
         const btn4 = page.getByTestId("confirm-button");
-        const btn5 = page.getByRole('button', { name: 'Connect' });
-        const btn6 = page.getByRole('button', { name: 'Approve' });
+        const btn5 = page.getByRole("button", { name: "Connect" });
+        const btn6 = page.getByRole("button", { name: "Approve" });
 
         // Wait until one of these three button visible and click it
         try {
