@@ -267,11 +267,15 @@ export const importAccountBySeedPhrase = async ({
     await closeOpenedPages(page);
 
     logWithTimestamp("Selecting Recovery Phrase/Seed Phrase tab");
-    await page.getByRole("tab", { name: /Recovery Phrase|Seed Phrase/i }).click();
-    await page.getByPlaceholder("Import 12 or 24 words split").click();
+    const tab = page.getByRole("tab", { name: /Recovery Phrase|Seed Phrase/i }).first();
+    await tab.waitFor({ state: "visible" });
+    await tab.click();
 
-    logWithTimestamp(`Filling seed phrase: ${seedPhrase}`);
-    await page.getByPlaceholder("Import 12 or 24 words split").fill(seedPhrase);
+    logWithTimestamp("Filling seed phrase");
+
+    const input = page.getByPlaceholder("Import 12 or 24 words split");
+    await input.click();
+    await input.fill(seedPhrase);
 
     logWithTimestamp("Clicking Import button");
     await page.getByRole("button", { name: "Import" }).click();
