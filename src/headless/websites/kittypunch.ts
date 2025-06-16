@@ -36,7 +36,7 @@ export class KittyPunch {
         await connectBtn.click();
         logWithTimestamp("Selecting installed wallet option...");
         if (this.browser.extension === "metamask") {
-            await page.getByTestId("rk-wallet-option-io.metamask").first().click();
+            await page.getByTestId("rk-wallet-option-io.metamask").click();
         } else {
             await page
                 .getByTestId(/rk-wallet-option-com\.*/)
