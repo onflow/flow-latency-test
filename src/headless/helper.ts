@@ -116,22 +116,22 @@ export const fillInPassword = async ({ page, password }: { page: Page, password:
         filledAtLeastOneField = true;
     }
 
-    if (await page.getByPlaceholder(/^Enter your password|输入您的密码$/i).isVisible()) {
-        const item = page.getByPlaceholder(/^Enter your password|输入您的密码$/i);
-        await item.clear();
-        await item.fill(password);
+    const item1 = page.getByPlaceholder("Enter your password");
+    if (await item1.isVisible()) {
+        await item1.clear();
+        await item1.fill(password);
         filledAtLeastOneField = true;
     }
-    if (await page.getByPlaceholder(/^Create a password|创建密码$/i).isVisible()) {
-        const item = page.getByPlaceholder(/^Create a password|创建密码$/i);
-        await item.clear();
-        await item.fill(password);
+    const item2 = page.getByPlaceholder("Create a password");
+    if (await item2.isVisible()) {
+        await item2.clear();
+        await item2.fill(password);
         filledAtLeastOneField = true;
     }
-    if (await page.getByPlaceholder(/^Confirm your password|确认密码$/i).isVisible()) {
-        const item = page.getByPlaceholder(/^Confirm your password|确认密码$/i);
-        await item.clear();
-        await item.fill(password);
+    const item3 = page.getByPlaceholder("Confirm your password");
+    if (await item3.isVisible()) {
+        await item3.clear();
+        await item3.fill(password);
         filledAtLeastOneField = true;
     }
     // Make sure we filled at least one field
@@ -267,25 +267,21 @@ export const importAccountBySeedPhrase = async ({
     await closeOpenedPages(page);
 
     logWithTimestamp("Selecting Recovery Phrase/Seed Phrase tab");
-    await page.getByRole("tab", { name: /Recovery Phrase|Seed Phrase|助记词/i }).click();
-    await page
-        .getByPlaceholder(/^Import 12 or 24 words split|导入 12 或 24 个用空格分隔的单词/i)
-        .click();
+    await page.getByRole("tab", { name: /Recovery Phrase|Seed Phrase/i }).click();
+    await page.getByPlaceholder("Import 12 or 24 words split").click();
 
     logWithTimestamp(`Filling seed phrase: ${seedPhrase}`);
-    await page
-        .getByPlaceholder(/^Import 12 or 24 words split|导入 12 或 24 个用空格分隔的单词/i)
-        .fill(seedPhrase);
+    await page.getByPlaceholder("Import 12 or 24 words split").fill(seedPhrase);
 
     logWithTimestamp("Clicking Import button");
-    await page.getByRole("button", { name: /^Import|导入$/i }).click();
+    await page.getByRole("button", { name: "Import" }).click();
     // We need to wait for the next step to be visible
 
     logWithTimestamp("Waiting for Import button to disappear");
-    await expect(page.getByRole("button", { name: /^Import|导入$/i })).not.toBeVisible();
+    await expect(page.getByRole("button", { name: "Import" })).not.toBeVisible();
 
     logWithTimestamp("Checking current step");
-    const step = await page.getByText(/STEP|步骤/).textContent();
+    const step = await page.getByText("STEP").textContent();
     logWithTimestamp(`Current step: ${step}`);
 
     if (step?.includes("4")) {
@@ -293,27 +289,25 @@ export const importAccountBySeedPhrase = async ({
         // We've already imported the account before
         await fillInPassword({ page, password });
 
-        await page.getByRole("button", { name: /^Login|登录$/i }).click();
+        await page.getByRole("button", { name: "Login" }).click();
         // await page.getByRole('button', { name: 'Login' }).click();
     } else if (step?.includes("2")) {
         logWithTimestamp("New import, filling username and password");
         // We haven't imported the account before
         await page.getByPlaceholder("Username").fill(username);
-        await page.getByRole("button", { name: /^Next|下一步$/i }).click();
+        await page.getByRole("button", { name: "Next" }).click();
 
         await fillInPassword({
             page,
             password,
         });
 
-        await page.getByRole("button", { name: /^Login|登录$/i }).click();
+        await page.getByRole("button", { name: "Login" }).click();
     }
 
     logWithTimestamp("Waiting for Connect and Back up button to be visible");
     // Wait for the Google Drive backup text to be visible
-    await expect(
-        page.getByRole("button", { name: /^Connect and Back up|连接并备份$/i }),
-    ).toBeVisible({
+    await expect(page.getByRole("button", { name: "Connect and Back up" })).toBeVisible({
         timeout: 10_000,
     });
 
