@@ -7,7 +7,8 @@ export const isValidEthereumAddress = (address: string): boolean => {
 };
 
 export const getClipboardText = async (page: Page) => {
-    const text = await page.evaluate(() => (navigator as any).clipboard.readText());
+    // @ts-ignore
+    const text = await page.evaluate(() => navigator.clipboard.readText());
     return text;
 };
 
@@ -103,7 +104,7 @@ export const loginToExtensionAccount = async ({ page, extensionId, addr, passwor
 
 const getNumber = (str: string) => {
     const match = str.match(/\d+/);
-    return match ? parseInt(match[0]) : null;
+    return match ? Number.parseInt(match[0]) : null;
 };
 
 export const fillInPassword = async ({ page, password }: { page: Page, password: string }) => {
@@ -115,19 +116,22 @@ export const fillInPassword = async ({ page, password }: { page: Page, password:
         filledAtLeastOneField = true;
     }
 
-    if (await page.getByPlaceholder('Enter your password').isVisible()) {
-        await page.getByPlaceholder('Enter your password').clear();
-        await page.getByPlaceholder('Enter your password').fill(password);
+    if (await page.getByPlaceholder(/^Enter your password|输入您的密码$/i).isVisible()) {
+        const item = page.getByPlaceholder(/^Enter your password|输入您的密码$/i);
+        await item.clear();
+        await item.fill(password);
         filledAtLeastOneField = true;
     }
-    if (await page.getByPlaceholder('Create a password').isVisible()) {
-        await page.getByPlaceholder('Create a password').clear();
-        await page.getByPlaceholder('Create a password').fill(password);
+    if (await page.getByPlaceholder(/^Create a password|创建密码$/i).isVisible()) {
+        const item = page.getByPlaceholder(/^Create a password|创建密码$/i);
+        await item.clear();
+        await item.fill(password);
         filledAtLeastOneField = true;
     }
-    if (await page.getByPlaceholder('Confirm your password').isVisible()) {
-        await page.getByPlaceholder('Confirm your password').clear();
-        await page.getByPlaceholder('Confirm your password').fill(password);
+    if (await page.getByPlaceholder(/^Confirm your password|确认密码$/i).isVisible()) {
+        const item = page.getByPlaceholder(/^Confirm your password|确认密码$/i);
+        await item.clear();
+        await item.fill(password);
         filledAtLeastOneField = true;
     }
     // Make sure we filled at least one field
@@ -176,9 +180,21 @@ export const registerAccount = async ({ page, extensionId, username, password }:
     const secondIdx = await page.locator('div').getByText('#').nth(1).textContent();
     const thirdIdx = await page.locator('div').getByText('#').nth(2).textContent();
 
-    const firstMnemonic = keyArr[getNumber(firstIdx!)! - 1];
-    const secondMnemonic = keyArr[getNumber(secondIdx!)! - 1];
-    const thirdMnemonic = keyArr[getNumber(thirdIdx!)! - 1];
+    if (!firstIdx || !secondIdx || !thirdIdx) {
+        throw new Error("Puzzles are not found");
+    }
+
+    const firstIdxNum = getNumber(firstIdx);
+    const secondIdxNum = getNumber(secondIdx);
+    const thirdIdxNum = getNumber(thirdIdx);
+
+    if (!firstIdxNum || !secondIdxNum || !thirdIdxNum) {
+        throw new Error("Puzzles are not found");
+    }
+
+    const firstMnemonic = keyArr[firstIdxNum - 1];
+    const secondMnemonic = keyArr[secondIdxNum - 1];
+    const thirdMnemonic = keyArr[thirdIdxNum - 1];
 
     // console.log(firstMnemonic, secondMnemonic, thirdMnemonic);
     // click the right mnemonic word
@@ -228,76 +244,100 @@ export const importAccountBySeedPhrase = async ({
     password,
     accountAddr = '',
 }: { page: Page, extensionId: string, seedPhrase: string, username: string, password: string, accountAddr?: string }) => {
-    if (page.url().includes('dashboard')) {
+    logWithTimestamp("Start importAccountBySeedPhrase");
+    logWithTimestamp(`Current URL: ${page.url()}`);
+    if (page.url().includes("dashboard")) {
+        logWithTimestamp("On dashboard, opening account menu to import profile");
         // Wait for the dashboard page to be fully loaded
         await page.waitForURL(/.*\/dashboard.*/);
         await openAccountMenu({ page });
 
         // We're already logged in so we need to click import profile
-        await page.getByTestId('add-account-button').click();
-        await page.getByTestId('import-existing-account-button').click();
+        await page.getByTestId("add-account-button").click();
+        await page.getByTestId("import-existing-account-button").click();
         // Close all pages except the current page (the extension opens them in the background)
         await closeOpenedPages(page);
     }
 
+    logWithTimestamp("Navigating to import page");
     // Go to the import page
     await page.goto(`chrome-extension://${extensionId}/index.html#/welcome/accountimport`);
 
     // Close all pages except the current page (the extension opens them in the background)
     await closeOpenedPages(page);
 
-    await page.getByRole('tab', { name: /Recovery Phrase|Seed Phrase/i }).click();
-    await page.getByPlaceholder('Import 12 or 24 words split').click();
+    logWithTimestamp("Selecting Recovery Phrase/Seed Phrase tab");
+    await page.getByRole("tab", { name: /Recovery Phrase|Seed Phrase|助记词/i }).click();
+    await page
+        .getByPlaceholder(/^Import 12 or 24 words split|导入 12 或 24 个用空格分隔的单词/i)
+        .click();
 
-    await page.getByPlaceholder('Import 12 or 24 words split').fill(seedPhrase);
+    logWithTimestamp(`Filling seed phrase: ${seedPhrase}`);
+    await page
+        .getByPlaceholder(/^Import 12 or 24 words split|导入 12 或 24 个用空格分隔的单词/i)
+        .fill(seedPhrase);
 
-    await page.getByRole('button', { name: 'Import' }).click();
+    logWithTimestamp("Clicking Import button");
+    await page.getByRole("button", { name: /^Import|导入$/i }).click();
     // We need to wait for the next step to be visible
 
-    await expect(page.getByRole('button', { name: 'Import' })).not.toBeVisible();
+    logWithTimestamp("Waiting for Import button to disappear");
+    await expect(page.getByRole("button", { name: /^Import|导入$/i })).not.toBeVisible();
 
-    const step = await page.getByText('STEP').textContent();
+    logWithTimestamp("Checking current step");
+    const step = await page.getByText(/STEP|步骤/).textContent();
+    logWithTimestamp(`Current step: ${step}`);
 
-    if (step?.includes('4')) {
+    if (step?.includes("4")) {
+        logWithTimestamp("Account already imported, filling password and logging in");
         // We've already imported the account before
         await fillInPassword({ page, password });
 
-        await page.getByRole('button', { name: 'Login' }).click();
+        await page.getByRole("button", { name: /^Login|登录$/i }).click();
         // await page.getByRole('button', { name: 'Login' }).click();
-    } else if (step?.includes('2')) {
+    } else if (step?.includes("2")) {
+        logWithTimestamp("New import, filling username and password");
         // We haven't imported the account before
-        await page.getByPlaceholder('Username').fill(username);
-        await page.getByRole('button', { name: 'Next' }).click();
+        await page.getByPlaceholder("Username").fill(username);
+        await page.getByRole("button", { name: /^Next|下一步$/i }).click();
 
         await fillInPassword({
-            page, password
+            page,
+            password,
         });
 
-        await page.getByRole('button', { name: 'Login' }).click();
-
+        await page.getByRole("button", { name: /^Login|登录$/i }).click();
     }
 
+    logWithTimestamp("Waiting for Connect and Back up button to be visible");
     // Wait for the Google Drive backup text to be visible
-    await expect(page.getByRole('button', { name: 'Connect and Back up' })).toBeVisible({
+    await expect(
+        page.getByRole("button", { name: /^Connect and Back up|连接并备份$/i }),
+    ).toBeVisible({
         timeout: 10_000,
     });
 
+    logWithTimestamp("Navigating to dashboard");
     await page.goto(`chrome-extension://${extensionId}/index.html#/dashboard`);
     await page.waitForURL(/.*\/dashboard.*/);
     logWithTimestamp("About to get current address");
     // Wait for the account address to be visible
     let flowAddr = await getCurrentAddress(page);
     logWithTimestamp(`Got current address: ${flowAddr}`);
-    logWithTimestamp(`Account address: ${accountAddr}`);
-    if (accountAddr && accountAddr !== '' && flowAddr !== accountAddr) {
+    logWithTimestamp(`Account address (expected): ${accountAddr}`);
+    if (accountAddr && accountAddr !== "" && flowAddr !== accountAddr) {
+        logWithTimestamp("Switching to main account");
         await switchToMainAccount({ page, address: accountAddr });
         flowAddr = await getCurrentAddress(page);
+        logWithTimestamp(`After switch, got current address: ${flowAddr}`);
     }
 
-    if (accountAddr && accountAddr !== '' && flowAddr !== accountAddr) {
-        throw new Error('Account address does not match');
+    if (accountAddr && accountAddr !== "" && flowAddr !== accountAddr) {
+        logWithTimestamp("Account address does not match, throwing error");
+        throw new Error("Account address does not match");
     }
 
+    logWithTimestamp("importAccountBySeedPhrase finished");
     return flowAddr;
 };
 
