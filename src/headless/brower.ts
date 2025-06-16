@@ -48,7 +48,7 @@ export class HeadlessBrowser {
     private extensionPage: Page | undefined = undefined;
     private cachedExtensionId: string | undefined = undefined;
 
-    constructor(private readonly extension: ExtensionType) {
+    constructor(public readonly extension: ExtensionType) {
         if (!extensionTypes.includes(extension)) {
             throw new Error(`Invalid extension type: ${extension}`);
         }
