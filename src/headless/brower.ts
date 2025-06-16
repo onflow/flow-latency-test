@@ -431,18 +431,41 @@ export class HeadlessBrowser {
         const btn2 = page.getByTestId("confirm-btn");
         const btn3 = page.getByTestId("confirm-footer-button");
         const btn4 = page.getByTestId("confirm-button");
-        const btn5 = page.getByRole("button", { name: "Connect" });
-        const btn6 = page.getByRole("button", { name: "Approve" });
+        const btn5 = page.getByRole("button", { name: "Connect" }).first();
+        const btn6 = page.getByRole("button", { name: "Approve" }).first();
+        const btn7 = page.getByRole("button", { name: "Confirm" }).first();
 
         // Wait until one of these three button visible and click it
         try {
             await Promise.race([
-                btn1.waitFor({ state: "visible" }).then(() => btn1.click()),
-                btn2.waitFor({ state: "visible" }).then(() => btn2.click()),
-                btn3.waitFor({ state: "visible" }).then(() => btn3.click()),
-                btn4.waitFor({ state: "visible" }).then(() => btn4.click()),
-                btn5.waitFor({ state: "visible" }).then(() => btn5.click()),
-                btn6.waitFor({ state: "visible" }).then(() => btn6.click()),
+                btn1
+                    .waitFor({ state: "visible" })
+                    .then(() => btn1.click())
+                    .catch(() => {}),
+                btn2
+                    .waitFor({ state: "visible" })
+                    .then(() => btn2.click())
+                    .catch(() => {}),
+                btn3
+                    .waitFor({ state: "visible" })
+                    .then(() => btn3.click())
+                    .catch(() => {}),
+                btn4
+                    .waitFor({ state: "visible" })
+                    .then(() => btn4.click())
+                    .catch(() => {}),
+                btn5
+                    .waitFor({ state: "visible" })
+                    .then(() => btn5.click())
+                    .catch(() => {}),
+                btn6
+                    .waitFor({ state: "visible" })
+                    .then(() => btn6.click())
+                    .catch(() => {}),
+                btn7
+                    .waitFor({ state: "visible" })
+                    .then(() => btn7.click())
+                    .catch(() => {}),
             ]);
             // ensure the page is closed
             await new Promise((resolve) => setTimeout(resolve, 500));
