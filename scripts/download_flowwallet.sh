@@ -3,11 +3,11 @@
 # Fetch the latest Metamask release info from GitHub
 release_json=$(curl -s https://api.github.com/repos/onflow/FRW-extension/releases/latest)
 
-# Find the asset with a name starting with 'metamask-chrome'
+# Find the asset with a name starting with 'Flow_Wallet_'
 download_url=$(echo "$release_json" | jq -r '.assets[] | select(.name | startswith("Flow_Wallet_")) | .browser_download_url')
 
 if [ -z "$download_url" ]; then
-  echo "No asset found with name starting with 'metamask-chrome'"
+  echo "No asset found with name starting with 'Flow_Wallet_'"
   exit 1
 fi
 
