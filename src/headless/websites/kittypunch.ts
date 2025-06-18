@@ -25,13 +25,16 @@ export class KittyPunch {
     async connectWallet() {
         logWithTimestamp("Attempting to connect wallet...");
         const page = this.browser.getCurrentPage();
-        await page.waitForTimeout(1000);
+        await page.waitForLoadState("networkidle");
         // check if the wallet is already connected
-        const connectBtn = page.getByRole("button", { name: "Connect Wallet" });
-        if (!(await connectBtn.isVisible())) {
+        const connectedWalletBtn = page.getByRole("button", { name: /0x.* FLOW/ });
+        if (await connectedWalletBtn.isVisible({ timeout: 2000 })) {
             logWithTimestamp("Wallet already connected. Skipping connect.");
             return;
         }
+        const connectBtn = page.getByRole("button", { name: "Connect Wallet" });
+        await connectBtn.isVisible();
+
         logWithTimestamp("Clicking 'Connect Wallet' button...");
         await connectBtn.click();
         logWithTimestamp("Selecting installed wallet option...");

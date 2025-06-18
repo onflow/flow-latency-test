@@ -163,7 +163,7 @@ export class HeadlessBrowser {
         logWithTimestamp("Extension loaded and ready");
     }
 
-    async activateMetamaskHomePage(reload = false) {
+    async activateWalletHomePage(reload = false) {
         if (!this.context) {
             logWithTimestamp("Browser context not initialized");
             throw new Error("Browser context not initialized");
@@ -193,7 +193,7 @@ export class HeadlessBrowser {
 
     async activateMetamask(reload = false) {
         logWithTimestamp("Activating MetaMask extension...");
-        await this.activateMetamaskHomePage(reload);
+        await this.activateWalletHomePage(reload);
 
         if (this.extensionPage === undefined) {
             logWithTimestamp("Extension page not initialized");
@@ -328,7 +328,7 @@ export class HeadlessBrowser {
             return;
         }
         logWithTimestamp("Switching to Flow Mainnet network...");
-        await this.activateMetamaskHomePage();
+        await this.activateWalletHomePage();
 
         if (this.context === undefined) {
             logWithTimestamp("Browser context not initialized");
@@ -426,7 +426,6 @@ export class HeadlessBrowser {
             throw new Error("Notification page not found");
         }
         await page.waitForLoadState("domcontentloaded");
-        await page.waitForTimeout(1000);
         const btn1 = page.getByTestId("confirmation-submit-button");
         const btn2 = page.getByTestId("confirm-btn");
         const btn3 = page.getByTestId("confirm-footer-button");
@@ -437,48 +436,23 @@ export class HeadlessBrowser {
 
         // Wait until one of these three button visible and click it
         try {
-            await Promise.race([
-                btn1
-                    .waitFor({ state: "visible" })
-                    .then(() => btn1.click())
-                    .catch(() => {}),
-                btn2
-                    .waitFor({ state: "visible" })
-                    .then(() => btn2.click())
-                    .catch(() => {}),
-                btn3
-                    .waitFor({ state: "visible" })
-                    .then(() => btn3.click())
-                    .catch(() => {}),
-                btn4
-                    .waitFor({ state: "visible" })
-                    .then(() => btn4.click())
-                    .catch(() => {}),
-                btn5
-                    .waitFor({ state: "visible" })
-                    .then(() => btn5.click())
-                    .catch(() => {}),
-                btn6
-                    .waitFor({ state: "visible" })
-                    .then(() => btn6.click())
-                    .catch(() => {}),
-                btn7
-                    .waitFor({ state: "visible" })
-                    .then(() => btn7.click())
-                    .catch(() => {}),
-            ]);
+
+            await btn1.or(btn2).or(btn3).or(btn4).or(btn5).or(btn6).or(btn7).click()
+            // Wait for the button to be clicked and the page to be closed
+            await page.waitForEvent("close");
+
             // ensure the page is closed
-            await new Promise((resolve) => setTimeout(resolve, 500));
             logWithTimestamp("Confirmed in notification page, and closing it.");
         } catch (error) {
             logWithTimestamp(
                 `Notification page button not found: ${error instanceof Error ? error.message : String(error)}`,
             );
             throw new Error("Failed to click notification page button");
-        }
-
-        if (!page.isClosed()) {
-            await page.close();
+        } finally {
+            // Ensure the page is closed
+            if (!page.isClosed()) {
+                await page.close();
+            }
         }
     }
 
