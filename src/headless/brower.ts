@@ -436,16 +436,10 @@ export class HeadlessBrowser {
 
         // Wait until one of these three button visible and click it
         try {
-            const btn = await Promise.race([
-                btn1.waitFor({ state: "visible" }).then(() => btn1),
-                btn2.waitFor({ state: "visible" }).then(() => btn2),
-                btn3.waitFor({ state: "visible" }).then(() => btn3),
-                btn4.waitFor({ state: "visible" }).then(() => btn4),
-                btn5.waitFor({ state: "visible" }).then(() => btn5),
-                btn6.waitFor({ state: "visible" }).then(() => btn6),
-            ]);
+
+            await btn1.or(btn2).or(btn3).or(btn4).or(btn5).or(btn6).or(btn7).click()
             // Wait for the button to be clicked and the page to be closed
-            await Promise.all([btn.click(), page.waitForEvent("close")]);
+            await page.waitForEvent("close");
 
             // ensure the page is closed
             logWithTimestamp("Confirmed in notification page, and closing it.");
