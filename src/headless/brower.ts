@@ -441,11 +441,20 @@ export class HeadlessBrowser {
             await btn.waitFor({ state: "visible", timeout: 5000 });
             logWithTimestamp("Button visible, clicking");
             await btn.click();
-            logWithTimestamp("Button clicked, waiting for page to be closed.");
-            await page.waitForEvent("close", { timeout: 5000 });
         } catch (error) {
             logWithTimestamp(`${error instanceof Error ? error.message : String(error)}`);
             throw new Error("Failed to click notification page button");
+        } finally {
+            // Ensure the page is closed
+            if (!page.isClosed()) {
+                await page.close();
+            }
+        }
+
+        try {
+            logWithTimestamp("Button clicked, waiting for page to be closed.");
+            await page.waitForEvent("close", { timeout: 5000 });
+        } catch (_error) {
         } finally {
             // Ensure the page is closed
             if (!page.isClosed()) {

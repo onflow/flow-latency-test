@@ -71,9 +71,9 @@ export class KittyPunch {
             .getByRole("button");
         logWithTimestamp("Waiting for the swap button to be enabled...");
         // Wait for the swap button to be visible
-        await swapBtn.waitFor({ state: "visible", timeout: 10000 });
+        await swapBtn.waitFor({ state: "visible", timeout: 15000 });
         // Wait for the swap button to be enabled
-        const timeout = 60000;
+        const timeout = 90000;
         const startTime = Date.now();
         while (await swapBtn.isDisabled()) {
             if (Date.now() - startTime > timeout) {
