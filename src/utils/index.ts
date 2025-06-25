@@ -20,7 +20,7 @@ export interface Action<T extends Context> {
 export abstract class BaseAction<T extends Context> implements Action<T> {
     constructor(
         protected readonly order?: number,
-        protected readonly maxTimeout: number = 60000,
+        protected readonly maxTimeout: number = 120000,
     ) {}
 
     abstract get name(): string;

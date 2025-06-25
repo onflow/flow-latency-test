@@ -121,7 +121,7 @@ export class KittyPunch {
         await page
             .locator("p")
             .filter({ hasText: /^Transaction completed$/ })
-            .waitFor({ state: "visible", timeout: 60000 });
+            .waitFor({ state: "visible", timeout: 120000 });
         logWithTimestamp("Transaction completed!");
     }
 }
