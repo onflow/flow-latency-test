@@ -437,14 +437,12 @@ export class HeadlessBrowser {
         // Wait until one of these three button visible and click it
         try {
             const btn = btn1.or(btn2).or(btn3).or(btn4).or(btn5).or(btn6).or(btn7);
-            if (await btn.isVisible()) {
-                await btn.click();
-                logWithTimestamp("Confirmed in notification page, waiting for page to be closed.");
-                // Wait for the button to be clicked and the page to be closed
-                await page.waitForEvent("close", { timeout: 5000 });
-            } else {
-                throw new Error("Notification page button not found");
-            }
+            logWithTimestamp("Confirmed in notification page, waiting for button to be visible.");
+            await btn.waitFor({ state: "visible", timeout: 5000 });
+            logWithTimestamp("Button visible, clicking");
+            await btn.click();
+            logWithTimestamp("Button clicked, waiting for page to be closed.");
+            await page.waitForEvent("close", { timeout: 5000 });
         } catch (error) {
             logWithTimestamp(`${error instanceof Error ? error.message : String(error)}`);
             throw new Error("Failed to click notification page button");
