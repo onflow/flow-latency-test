@@ -280,6 +280,19 @@ export class HeadlessBrowser {
             if (await next2Btn.isVisible()) {
                 await next2Btn.click();
             }
+
+            // wait for network display to be visible
+            await this.extensionPage.getByTestId("network-display").waitFor({ state: "visible" });
+
+            // avoid onboarding popup
+            const notNowBtn = this.extensionPage.getByTestId("not-now-button");
+            if (await notNowBtn.isVisible()) {
+                logWithTimestamp("Not now button found, clicking");
+                await notNowBtn.click();
+            }
+
+            // wait for network idle
+            await this.extensionPage.waitForLoadState("networkidle");
         }
         logWithTimestamp("MetaMask activated and ready");
     }
@@ -368,7 +381,9 @@ export class HeadlessBrowser {
 
         logWithTimestamp("Notification page confirmed, closing page");
 
-        await page.close();
+        if (!page.isClosed()) {
+            await page.close();
+        }
     }
 
     async waitForNotificationPageAndClickConfirm(opts?: {
@@ -457,11 +472,6 @@ export class HeadlessBrowser {
         } catch (error) {
             logWithTimestamp(`${error instanceof Error ? error.message : String(error)}`);
             throw new Error("Failed to click notification page button");
-        } finally {
-            // Ensure the page is closed
-            if (!page.isClosed()) {
-                await page.close();
-            }
         }
 
         try {
