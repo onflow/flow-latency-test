@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # Fetch the latest Metamask release info from GitHub
-release_json=$(curl -s https://api.github.com/repos/MetaMask/metamask-extension/releases/latest)
+# release_json=$(curl -s https://api.github.com/repos/MetaMask/metamask-extension/releases/latest)
+# Fetch a specific release
+release_json=$(curl -s https://api.github.com/repos/MetaMask/metamask-extension/releases/tags/v12.18.3)
 
 # Find the asset with a name starting with 'metamask-chrome'
 download_url=$(echo "$release_json" | jq -r '.assets[] | select(.name | startswith("metamask-chrome")) | .browser_download_url')
