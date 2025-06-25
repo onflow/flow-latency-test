@@ -430,9 +430,15 @@ export class HeadlessBrowser {
         const btn2 = page.getByTestId("confirm-btn");
         const btn3 = page.getByTestId("confirm-footer-button");
         const btn4 = page.getByTestId("confirm-button");
-        const btn5 = page.getByRole("button", { name: "Connect", disabled: false }).first();
-        const btn6 = page.getByRole("button", { name: "Approve", disabled: false }).first();
-        const btn7 = page.getByRole("button", { name: "Confirm", disabled: false }).first();
+        const btn5 = page
+            .getByRole("button", { name: "Connect", disabled: false, exact: true })
+            .first();
+        const btn6 = page
+            .getByRole("button", { name: "Approve", disabled: false, exact: true })
+            .first();
+        const btn7 = page
+            .getByRole("button", { name: "Confirm", disabled: false, exact: true })
+            .first();
 
         // Wait until one of these three button visible and click it
         try {
