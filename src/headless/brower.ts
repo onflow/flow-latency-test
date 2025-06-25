@@ -430,9 +430,9 @@ export class HeadlessBrowser {
         const btn2 = page.getByTestId("confirm-btn");
         const btn3 = page.getByTestId("confirm-footer-button");
         const btn4 = page.getByTestId("confirm-button");
-        const btn5 = page.getByRole("button", { name: "Connect" }).first();
-        const btn6 = page.getByRole("button", { name: "Approve" }).first();
-        const btn7 = page.getByRole("button", { name: "Confirm" }).first();
+        const btn5 = page.getByRole("button", { name: "Connect", disabled: false }).first();
+        const btn6 = page.getByRole("button", { name: "Approve", disabled: false }).first();
+        const btn7 = page.getByRole("button", { name: "Confirm", disabled: false }).first();
 
         // Wait until one of these three button visible and click it
         try {
@@ -444,9 +444,8 @@ export class HeadlessBrowser {
                 .or(btn5)
                 .or(btn6)
                 .or(btn7)
-                .filter({ visible: true })
-                .locator("button:not([disabled])")
-                .first();
+                .filter({ visible: true });
+            await btn.waitFor({ state: "visible", timeout: 10000 });
             logWithTimestamp("Button visible and not disabled, clicking");
             await btn.click();
         } catch (error) {
