@@ -111,7 +111,13 @@ export class KittyPunch {
             .filter({ hasText: "reverted with the following reason" })
             .isVisible();
         if (closeVisible && reasonVisible) {
-            logWithTimestamp("Transaction failed detected.");
+            if (reasonVisible) {
+                const text = await page
+                    .locator("p")
+                    .filter({ hasText: "reverted with the following reason" })
+                    .textContent();
+                logWithTimestamp(`Transaction failed detected: \n ${text}`);
+            }
             return true;
         }
         logWithTimestamp("No transaction failure detected.");
