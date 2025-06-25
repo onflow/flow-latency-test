@@ -436,9 +436,15 @@ export class HeadlessBrowser {
 
         // Wait until one of these three button visible and click it
         try {
-            const btn = btn1.or(btn2).or(btn3).or(btn4).or(btn5).or(btn6).or(btn7);
             logWithTimestamp("Confirmed in notification page, waiting for button to be visible.");
-            await btn.waitFor({ state: "visible", timeout: 5000 });
+            const btn = btn1
+                .or(btn2)
+                .or(btn3)
+                .or(btn4)
+                .or(btn5)
+                .or(btn6)
+                .or(btn7)
+                .filter({ hasNotText: "...", visible: true });
             logWithTimestamp("Button visible, clicking");
             await btn.click();
         } catch (error) {
