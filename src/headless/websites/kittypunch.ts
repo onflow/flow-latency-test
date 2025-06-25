@@ -60,10 +60,16 @@ export class KittyPunch {
         const page = this.browser.getCurrentPage();
         await page.waitForLoadState("networkidle");
         logWithTimestamp(`Page loaded, clicking amount button: ${amountButtonText}`);
-        // Input amount
-        await page.getByRole("button", { name: amountButtonText }).isEnabled();
-        await page.getByRole("button", { name: amountButtonText }).click();
-        logWithTimestamp("Amount button clicked.");
+
+        const amountButton = page.getByRole("button", { name: amountButtonText });
+
+        const clickAmountButton = async () => {
+            await amountButton.isEnabled();
+            await amountButton.click();
+            logWithTimestamp(`Amount button ${amountButtonText} clicked.`);
+        };
+        await clickAmountButton();
+
         // Get swap button
         const swapBtn = page
             .locator("div")
@@ -76,9 +82,14 @@ export class KittyPunch {
         const timeout = 90000;
         const startTime = Date.now();
         while (await swapBtn.isDisabled()) {
-            if (Date.now() - startTime > timeout) {
-                logWithTimestamp("Error: Swap button is not enabled after timeout");
+            const elapsed = Date.now() - startTime;
+            if (elapsed > timeout) {
+                logWithTimestamp(`Error: Swap button is not enabled after ${elapsed}ms`);
                 throw new Error("Swap button is not enabled");
+            }
+            if ((elapsed / 100) % 20 === 0) {
+                logWithTimestamp(`Swap button is not enabled after ${elapsed}ms, trying again...`);
+                await clickAmountButton();
             }
             await page.waitForTimeout(100);
         }
