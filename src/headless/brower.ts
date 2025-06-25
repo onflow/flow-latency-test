@@ -444,8 +444,10 @@ export class HeadlessBrowser {
                 .or(btn5)
                 .or(btn6)
                 .or(btn7)
-                .filter({ hasNotText: "...", visible: true });
-            logWithTimestamp("Button visible, clicking");
+                .filter({ visible: true })
+                .locator("button:not([disabled])")
+                .first();
+            logWithTimestamp("Button visible and not disabled, clicking");
             await btn.click();
         } catch (error) {
             logWithTimestamp(`${error instanceof Error ? error.message : String(error)}`);
