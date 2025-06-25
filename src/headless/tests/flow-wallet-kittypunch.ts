@@ -9,27 +9,27 @@ async function testMetaMask() {
         await browser.activateFlowWallet();
         await browser.switchToFlowMainnet();
 
-        // const kittypunch = new KittyPunch(browser);
-        // await kittypunch.openSwapFlowToUsdfUrl();
-        // await kittypunch.connectWallet();
+        const kittypunch = new KittyPunch(browser);
+        await kittypunch.openSwapFlowToUsdfUrl();
+        await kittypunch.connectWallet();
 
-        // await kittypunch.doSwap("FLOW", "USDF", "25%");
-        // await browser.waitForNotificationPageAndClickConfirm({
-        //     failCheck: () => kittypunch.inTransactionFailedCheck(),
-        //     failMessage: "Transaction Request reverted or failed, App shows an error",
-        // });
-        // await kittypunch.waitForTransactionCompleted();
+        await kittypunch.doSwap("FLOW", "USDF", "25%");
+        await browser.waitForNotificationPageAndClickConfirm({
+            failCheck: () => kittypunch.inTransactionFailedCheck(),
+            failMessage: "Transaction Request reverted or failed, App shows an error",
+        });
+        await kittypunch.waitForTransactionCompleted();
 
-        // await kittypunch.doSwap("USDF", "FLOW", "Max");
-        // // Wait for the notification page to be opened
-        // await browser.waitForNotificationPageAndClickConfirm({
-        //     failCheck: () => kittypunch.inTransactionFailedCheck(),
-        //     failMessage: "Transaction Request reverted or failed, App shows an error",
-        // });
-        // if (await kittypunch.isApprovingTokens()) {
-        //     await browser.waitForNotificationPageAndClickConfirm();
-        // }
-        // await kittypunch.waitForTransactionCompleted();
+        await kittypunch.doSwap("USDF", "FLOW", "Max");
+        // Wait for the notification page to be opened
+        await browser.waitForNotificationPageAndClickConfirm({
+            failCheck: () => kittypunch.inTransactionFailedCheck(),
+            failMessage: "Transaction Request reverted or failed, App shows an error",
+        });
+        if (await kittypunch.isApprovingTokens()) {
+            await browser.waitForNotificationPageAndClickConfirm();
+        }
+        await kittypunch.waitForTransactionCompleted();
 
         console.log("Test completed successfully!");
     } catch (error) {
