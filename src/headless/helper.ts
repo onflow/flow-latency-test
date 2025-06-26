@@ -306,7 +306,7 @@ export const importAccountBySeedPhrase = async ({
             password,
         });
 
-        await page.getByRole("button", { name: "Login" }).click();
+        await page.getByRole('button', { name: /Login|Register/i }).click();
     }
 
     logWithTimestamp("Waiting for Connect and Back up button to be visible");
