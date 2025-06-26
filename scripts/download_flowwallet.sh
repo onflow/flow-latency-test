@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Fetch the latest release info from GitHub
-release_json=$(curl -s https://api.github.com/repos/onflow/FRW-extension/releases/latest)
+# release_json=$(curl -s https://api.github.com/repos/onflow/FRW-extension/releases/latest)
 # Fetch a specific release
-# release_json=$(curl -s https://api.github.com/repos/onflow/FRW-extension/releases/tags/2.8.6)
+release_json=$(curl -s https://api.github.com/repos/onflow/FRW-extension/releases/tags/2.8.6)
 
 # Find the asset with a name starting with 'Flow_Wallet_'
 download_url=$(echo "$release_json" | jq -r '.assets[] | select(.name | startswith("Flow_Wallet_")) | .browser_download_url')
