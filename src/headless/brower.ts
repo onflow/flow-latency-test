@@ -476,7 +476,7 @@ export class HeadlessBrowser {
 
         try {
             logWithTimestamp("Button clicked, waiting for page to be closed.");
-            await page.waitForEvent("close", { timeout: 5000 });
+            await page.waitForEvent("close", { timeout: 500 });
         } catch (_error) {
         } finally {
             // Ensure the page is closed
