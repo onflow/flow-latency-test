@@ -293,8 +293,7 @@ export const importAccountBySeedPhrase = async ({
         // We've already imported the account before
         await fillInPassword({ page, password });
 
-        await page.getByRole("button", { name: "Login" }).click();
-        // await page.getByRole('button', { name: 'Login' }).click();
+        await page.getByRole("button", { name: /Login|Register/i }).click();
     } else if (step?.includes("2")) {
         logWithTimestamp("New import, filling username and password");
         // We haven't imported the account before
