@@ -110,29 +110,28 @@ const getNumber = (str: string) => {
 export const fillInPassword = async ({ page, password }: { page: Page, password: string }) => {
     // Handle both create a password and confirm your password
     let filledAtLeastOneField = false;
-    if (await page.getByLabel('Password').isVisible()) {
-        await page.getByLabel('Password').clear();
-        await page.getByLabel('Password').fill(password);
+    if (await page.getByPlaceholder('Password').first().isVisible()) {
+        await page.getByPlaceholder('Password').first().clear();
+        await page.getByPlaceholder('Password').first().fill(password);
         filledAtLeastOneField = true;
     }
-
-    const item1 = page.getByPlaceholder("Enter your password");
-    if (await item1.isVisible()) {
-        await item1.clear();
-        await item1.fill(password);
+    if (await page.getByPlaceholder('Enter your password').isVisible()) {
+        await page.getByPlaceholder('Enter your password').clear();
+        await page.getByPlaceholder('Enter your password').fill(password);
         filledAtLeastOneField = true;
     }
-    const item2 = page.getByPlaceholder("Create a password");
-    if (await item2.isVisible()) {
-        await item2.clear();
-        await item2.fill(password);
+    if (await page.getByPlaceholder('Create a password').isVisible()) {
+        await page.getByPlaceholder('Create a password').clear();
+        await page.getByPlaceholder('Create a password').fill(password);
         filledAtLeastOneField = true;
     }
-    const item3 = page.getByPlaceholder("Confirm your password");
-    if (await item3.isVisible()) {
-        await item3.clear();
-        await item3.fill(password);
+    if (await page.getByPlaceholder('Confirm your password').isVisible()) {
+        await page.getByPlaceholder('Confirm your password').clear();
+        await page.getByPlaceholder('Confirm your password').fill(password);
         filledAtLeastOneField = true;
+    }
+    if (await page.getByRole('checkbox', { name: /.*agree to Flow Wallet.*/ }).isVisible()) {
+        await page.getByRole('checkbox', { name: /.*agree to Flow Wallet.*/ }).setChecked(true);
     }
     // Make sure we filled at least one field
     expect(filledAtLeastOneField).toBe(true);
@@ -212,7 +211,7 @@ export const registerAccount = async ({ page, extensionId, username, password }:
     // fill
     await fillInPassword({ page, password });
 
-    await page.getByLabel("I agree to Flow Wallet's").click();
+    await page.getByLabel("I agree to Flow Wallet's").setChecked(true);
 
     const registerBtn = await page.getByRole('button', { name: 'Register' });
     await registerBtn.click();
