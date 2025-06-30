@@ -35,7 +35,7 @@ async function testMetaMask() {
     } catch (error) {
         console.error("Test failed:", error);
     } finally {
-        // await browser.close();
+        await browser.close();
     }
 }
 

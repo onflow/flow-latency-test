@@ -1,3 +1,4 @@
+import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
@@ -92,6 +93,26 @@ export class HeadlessBrowser {
             "--lang=en-US",
         ];
         logWithTimestamp(`Starting browser with args: ${JSON.stringify(args)}`);
+
+        // Manually clear potentially problematic directories from the user data dir
+        // to prevent data corruption issues when an extension is updated.
+        // try {
+        //     logWithTimestamp("Clearing specific user data directories before launch...");
+        //     const directoriesToDelete = [
+        //         path.join(USER_DATA_DIR, "Default", "Service Worker"),
+        //     ];
+
+        //     for (const dir of directoriesToDelete) {
+        //         await fs.rm(dir, { recursive: true, force: true });
+        //     }
+        //     logWithTimestamp("Finished clearing directories.");
+        // } catch (error) {
+        //     logWithTimestamp(
+        //         `Could not clear user data directories: ${error instanceof Error ? error.message : String(error)
+        //         }`,
+        //     );
+        //     // We can continue anyway, but log the error.
+        // }
 
         try {
             const context = await chromium.launchPersistentContext(USER_DATA_DIR, {
