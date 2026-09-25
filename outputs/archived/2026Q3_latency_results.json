@@ -105593,6 +105593,157 @@
                     }
                 }
             ]
+        },
+        {
+            "timestamp": "2026-08-26T15:57:17.376Z",
+            "tests": [
+                {
+                    "network": "testnet",
+                    "providerKey": "default",
+                    "runner": "transfer-cadence-soft-finality-test",
+                    "metrics": {
+                        "0_TransferAction": {
+                            "waiting": 0,
+                            "completed": 583
+                        },
+                        "1_GetBalance_Await_hash": {
+                            "waiting": 619,
+                            "completed": 714
+                        },
+                        "2_WaitForTransactionExecuted": {
+                            "waiting": 620,
+                            "completed": 5988
+                        },
+                        "3_GetBalance_Await_receipt->Change": {
+                            "waiting": 5990,
+                            "completed": 6085
+                        },
+                        "4_WaitForTransactionSealed": {
+                            "waiting": 621,
+                            "completed": 9283
+                        }
+                    }
+                },
+                {
+                    "network": "testnet",
+                    "providerKey": "default",
+                    "runner": "transfer-cadence-test",
+                    "metrics": {
+                        "0_TransferAction": {
+                            "waiting": 0,
+                            "completed": 477
+                        },
+                        "1_GetBalance_Await_hash": {
+                            "waiting": 510,
+                            "completed": 573
+                        },
+                        "2_WaitForTransactionExecuted": {
+                            "waiting": 510,
+                            "completed": 4821
+                        },
+                        "3_GetBalance_Await_receipt->Change": {
+                            "waiting": 4826,
+                            "completed": 8362
+                        },
+                        "4_WaitForTransactionSealed": {
+                            "waiting": 511,
+                            "completed": 9215
+                        }
+                    }
+                },
+                {
+                    "network": "testnet",
+                    "providerKey": "ALCHEMY_URL",
+                    "runner": "transfer-test",
+                    "metrics": {
+                        "0_TransferAction": {
+                            "waiting": 0,
+                            "completed": 1208
+                        },
+                        "1_GetBalance_Await_hash": {
+                            "waiting": 1255,
+                            "completed": 1368
+                        },
+                        "2_WaitForTransactionReceipt": {
+                            "waiting": 1256,
+                            "completed": 5605
+                        },
+                        "3_GetBalance_Await_receipt->Change": {
+                            "waiting": 5621,
+                            "completed": 5726
+                        }
+                    }
+                },
+                {
+                    "network": "testnet",
+                    "providerKey": "ALCHEMY_URL",
+                    "runner": "transfer-erc20-test",
+                    "metrics": {
+                        "0_TransferAction": {
+                            "waiting": 0,
+                            "completed": 1374
+                        },
+                        "1_GetBalance_Await_hash": {
+                            "waiting": 1406,
+                            "completed": 1671
+                        },
+                        "2_WaitForTransactionReceipt": {
+                            "waiting": 1408,
+                            "completed": 5960
+                        },
+                        "3_GetBalance_Await_receipt->Change": {
+                            "waiting": 5972,
+                            "completed": 6208
+                        }
+                    }
+                },
+                {
+                    "network": "testnet",
+                    "providerKey": "QUICKNODE_URL",
+                    "runner": "transfer-test",
+                    "metrics": {
+                        "0_TransferAction": {
+                            "waiting": 0,
+                            "completed": 559
+                        },
+                        "1_GetBalance_Await_hash": {
+                            "waiting": 602,
+                            "completed": 654
+                        },
+                        "2_WaitForTransactionReceipt": {
+                            "waiting": 603,
+                            "completed": 7319
+                        },
+                        "3_GetBalance_Await_receipt->Change": {
+                            "waiting": 7323,
+                            "completed": 7376
+                        }
+                    }
+                },
+                {
+                    "network": "testnet",
+                    "providerKey": "QUICKNODE_URL",
+                    "runner": "transfer-erc20-test",
+                    "metrics": {
+                        "0_TransferAction": {
+                            "waiting": 0,
+                            "completed": 606
+                        },
+                        "1_GetBalance_Await_hash": {
+                            "waiting": 652,
+                            "completed": 707
+                        },
+                        "2_WaitForTransactionReceipt": {
+                            "waiting": 654,
+                            "completed": 7380
+                        },
+                        "3_GetBalance_Await_receipt->Change": {
+                            "waiting": 7430,
+                            "completed": 7483
+                        }
+                    }
+                }
+            ]
         }
     ]
 }
